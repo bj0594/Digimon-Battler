@@ -1,5 +1,6 @@
 public static class TestData
 {
+    // Static lists to hold sample Digimon and Move data for testing
     public static List<Digimon> DigimonList = new()
     {
         new Digimon
@@ -31,6 +32,7 @@ public static class TestData
         }
     };
 
+    // Static list to hold sample Move data for testing
     public static List<Move> MoveList = new()
     {
         new Move

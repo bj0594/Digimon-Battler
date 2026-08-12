@@ -1,22 +1,5 @@
-﻿Console.Clear();
-Console.CursorVisible = false;
+﻿// Create two Digimon instances for the battle
+Digimon player = TestData.DigimonList[0];
+Digimon opponent = TestData.DigimonList[1];
 
-Console.WriteLine("╔══════════════════════════════════════════════════════╗");
-Console.WriteLine("║                  DIGIMON BATTLER                     ║");
-Console.WriteLine("╠══════════════════════════════════════════════════════╣");
-Console.WriteLine("║                                                      ║");
-Console.WriteLine("║  AGUMON                              GABUMON         ║");
-Console.WriteLine("║                                                      ║");
-Console.WriteLine("║  HP  ████████████████ 1000/1000    █████████ 900/900 ║");
-Console.WriteLine("║  SP  ████████████████  120/120     █████████ 100/100 ║");
-Console.WriteLine("║                                                      ║");
-Console.WriteLine("║                  ROUND 01                            ║");
-Console.WriteLine("║                                                      ║");
-Console.WriteLine("╠══════════════════════════════════════════════════════╣");
-Console.WriteLine("║                                                      ║");
-Console.WriteLine("║  > ATTACK                                            ║");
-Console.WriteLine("║    MOVES                                             ║");
-Console.WriteLine("║    DIGIMON INFO                                      ║");
-Console.WriteLine("║    FLEE                                              ║");
-Console.WriteLine("║                                                      ║");
-Console.WriteLine("╚══════════════════════════════════════════════════════╝");
+BattleView.DrawBattleScreen(player, opponent);
