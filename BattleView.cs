@@ -1,10 +1,38 @@
 public static class BattleView
 {
-    // Constants for the battle screen layout
+    // Battle screen dimensions
     private const int InnerWidth = 72;
+
+    // Horizontal center positions for each combatant
+    private const int PlayerCenterX = 21;
+    private const int OpponentCenterX = 53;
+
+    // Length of HP/SP bars
     private const int BarLength = 18;
 
-    // Method to draw the entire battle screen
+    // Player sprite
+    private static readonly string[] PlayerSprite =
+    {
+        "  ▄██▄",
+        "▄██████▄",
+        "███████●",
+        " ██████▀",
+        "  ████",
+        " ██  ██"
+    };
+
+    // Opponent sprite
+    private static readonly string[] OpponentSprite =
+    {
+        "  ▄█ █▄",
+        " ▄█████▄ ⌜/",
+        "█●█●████╱",
+        "███████▀",
+        " ██ ██"
+    };
+
+
+    // Draws the entire battle screen
     public static void DrawBattleScreen(
         Digimon player,
         Digimon opponent,
@@ -18,48 +46,129 @@ public static class BattleView
         DrawBattleMenu();
         DrawBattleLog(player);
 
-        Console.WriteLine($"╚{new string('═', InnerWidth)}╝");
+        DrawBottomBorder();
+
+        Console.SetCursorPosition(0, 0);
     }
 
-    // Method to draw the header of the battle screen
+
+    // Draws the header
     private static void DrawHeader()
     {
-        Console.WriteLine($"╔{new string('═', InnerWidth)}╗");
-        WriteCentered("DIGIMON BATTLER");
-        Console.WriteLine($"╠{new string('═', InnerWidth)}╣");
+        DrawTopBorder();
+
+        WriteInside(
+            1,
+            CenterText("DIGIMON BATTLER", InnerWidth)
+        );
+
+        DrawSeparator(2);
     }
 
-    // Method to draw the combatants (player and opponent) on the battle screen
-    private static void DrawCombatants(Digimon player, Digimon opponent)
+
+    // Draws the player and opponent section
+    private static void DrawCombatants(
+        Digimon player,
+        Digimon opponent)
     {
-        WriteEmptyLine();
+        // Clear the combat area while keeping the side walls.
+        for (int y = 3; y <= 16; y++)
+        {
+            WriteInside(y, "");
+        }
 
-        WriteRow(
-            $"   {player.Name,-30}{opponent.Name,-30}"
+
+        // -------------------------
+        // PLAYER
+        // -------------------------
+
+        // Player name and attribute
+        WriteAtCenter(
+            PlayerCenterX,
+            4,
+            player.Name
         );
 
-        WriteRow(
-            $"   {player.Attribute,-30}{opponent.Attribute,-30}"
+        WriteAtCenter(
+            PlayerCenterX,
+            5,
+            player.Attribute
         );
 
-        WriteEmptyLine();
 
-        // Temporary placeholders for Digimon illustrations
-        WriteRow(
-            "          [ PLAYER ]                          [ OPPONENT ]"
+        // -------------------------
+        // OPPONENT
+        // -------------------------
+
+        // Opponent sprite is one row higher.
+        DrawSprite(
+            OpponentSprite,
+            OpponentCenterX,
+            4
         );
 
-        WriteEmptyLine();
 
-        DrawStatBars(player, opponent);
+        // -------------------------
+        // PLAYER SPRITE
+        // -------------------------
 
-        WriteEmptyLine();
+        DrawSprite(
+            PlayerSprite,
+            PlayerCenterX,
+            7
+        );
 
-        Console.WriteLine($"╠{new string('═', InnerWidth)}╣");
+
+        // Opponent name and attribute
+        WriteAtCenter(
+            OpponentCenterX,
+            9,
+            opponent.Name
+        );
+
+        WriteAtCenter(
+            OpponentCenterX,
+            10,
+            opponent.Attribute
+        );
+
+
+        // -------------------------
+        // HP / SP
+        // -------------------------
+
+        DrawStatBars(
+            player,
+            opponent
+        );
+
+
+        // Bottom of combatant area
+        DrawSeparator(17);
     }
 
-    // Method to draw the health and special points bars for both Digimon
-    private static void DrawStatBars(Digimon player, Digimon opponent)
+
+    // Draws a sprite at a specific position
+    private static void DrawSprite(
+        string[] sprite,
+        int centerX,
+        int startY)
+    {
+        for (int i = 0; i < sprite.Length; i++)
+        {
+            WriteAtCenter(
+                centerX,
+                startY + i,
+                sprite[i]
+            );
+        }
+    }
+
+
+    // Draws HP and SP for both Digimon
+    private static void DrawStatBars(
+        Digimon player,
+        Digimon opponent)
     {
         string playerHpBar = CreateBar(
             player.CurrentHp,
@@ -81,90 +190,230 @@ public static class BattleView
             opponent.MaxSp
         );
 
-        WriteRow(
-            $"   HP {playerHpBar} {player.CurrentHp,4}/{player.MaxHp,-4}" +
-            $"     HP {opponentHpBar} {opponent.CurrentHp,4}/{opponent.MaxHp,-4}"
+
+        string playerHp =
+            $"HP {playerHpBar} {player.CurrentHp}/{player.MaxHp}";
+
+        string opponentHp =
+            $"HP {opponentHpBar} {opponent.CurrentHp}/{opponent.MaxHp}";
+
+        string playerSp =
+            $"SP {playerSpBar} {player.CurrentSp}/{player.MaxSp}";
+
+        string opponentSp =
+            $"SP {opponentSpBar} {opponent.CurrentSp}/{opponent.MaxSp}";
+
+
+        // HP
+        WriteAtCenter(
+            PlayerCenterX,
+            14,
+            playerHp
         );
 
-        WriteRow(
-            $"   SP {playerSpBar} {player.CurrentSp,4}/{player.MaxSp,-4}" +
-            $"     SP {opponentSpBar} {opponent.CurrentSp,4}/{opponent.MaxSp,-4}"
+        WriteAtCenter(
+            OpponentCenterX,
+            14,
+            opponentHp
+        );
+
+
+        // SP
+        WriteAtCenter(
+            PlayerCenterX,
+            15,
+            playerSp
+        );
+
+        WriteAtCenter(
+            OpponentCenterX,
+            15,
+            opponentSp
         );
     }
 
-    // Method to create a visual representation of a stat bar based on current and maximum values
-    private static string CreateBar(int current, int maximum)
+
+    // Creates a visual stat bar
+    private static string CreateBar(
+        int current,
+        int maximum)
     {
         if (maximum <= 0)
         {
-            return new string('░', BarLength);
+            return new string(
+                '░',
+                BarLength
+            );
         }
 
-        double percentage = (double)current / maximum;
+        double percentage =
+            (double)current / maximum;
 
-        int filled = (int)(percentage * BarLength);
+        int filled =
+            (int)(percentage * BarLength);
 
-        filled = Math.Clamp(filled, 0, BarLength);
+        filled = Math.Clamp(
+            filled,
+            0,
+            BarLength
+        );
 
-        return new string('█', filled)
-             + new string('░', BarLength - filled);
-    }
-
-
-    private static void DrawRound(int roundNumber, Digimon player)
-    {
-        WriteCentered($"ROUND {roundNumber:00} — {player.Name}");
-
-        Console.WriteLine($"╠{new string('═', InnerWidth)}╣");
-    }
-
-    // Method to draw the battle menu options
-    private static void DrawBattleMenu()
-    {
-        WriteEmptyLine();
-
-        WriteRow("   > ATTACK");
-        WriteRow("     INFO");
-        WriteRow("     FLEE");
-
-        WriteEmptyLine();
-
-        Console.WriteLine($"╠{new string('═', InnerWidth)}╣");
-    }
-
-    // Method to draw the battle log section of the screen
-    private static void DrawBattleLog(Digimon player)
-    {
-        WriteRow(" BATTLE LOG");
-        WriteRow($" {player.Name} is ready for battle.");
-    }
-
-    // Helper method to write text centered within the battle screen
-    private static void WriteCentered(string text)
-    {
-        int padding = (InnerWidth - text.Length) / 2;
-
-        WriteRow(
-            new string(' ', padding) + text
+        return new string(
+            '█',
+            filled
+        )
+        +
+        new string(
+            '░',
+            BarLength - filled
         );
     }
 
-    // Helper method to write an empty line within the battle screen
-    private static void WriteEmptyLine()
+
+    // Draws the current round
+    private static void DrawRound(
+        int roundNumber,
+        Digimon player)
     {
-        WriteRow("");
+        WriteInside(
+            18,
+            CenterText(
+                $"ROUND {roundNumber:00} — {player.Name}",
+                InnerWidth
+            )
+        );
+
+        DrawSeparator(19);
     }
 
-    // Helper method to write a row of text within the battle screen, ensuring it fits within the defined width
-    private static void WriteRow(string content)
+
+    // Draws the battle menu
+    private static void DrawBattleMenu()
+    {
+        WriteInside(20, "");
+        WriteInside(21, "   > ATTACK");
+        WriteInside(22, "     INFO");
+        WriteInside(23, "     FLEE");
+        WriteInside(24, "");
+
+        DrawSeparator(25);
+    }
+
+
+    // Draws the battle log
+    private static void DrawBattleLog(
+        Digimon player)
+    {
+        WriteInside(
+            26,
+            " BATTLE LOG"
+        );
+
+        WriteInside(
+            27,
+            $" {player.Name} is ready for battle."
+        );
+    }
+
+
+    // Draws the top border
+    private static void DrawTopBorder()
+    {
+        Console.SetCursorPosition(0, 0);
+
+        Console.Write(
+            $"╔{new string('═', InnerWidth)}╗"
+        );
+    }
+
+
+    // Draws a horizontal separator
+    private static void DrawSeparator(int y)
+    {
+        Console.SetCursorPosition(0, y);
+
+        Console.Write(
+            $"╠{new string('═', InnerWidth)}╣"
+        );
+    }
+
+
+    // Draws the bottom border
+    private static void DrawBottomBorder()
+    {
+        Console.SetCursorPosition(0, 28);
+
+        Console.Write(
+            $"╚{new string('═', InnerWidth)}╝"
+        );
+    }
+
+
+    // Writes content inside the battle box
+    private static void WriteInside(
+        int y,
+        string content)
     {
         if (content.Length > InnerWidth)
         {
             content = content[..InnerWidth];
         }
 
-        Console.WriteLine(
+        Console.SetCursorPosition(0, y);
+
+        Console.Write(
             $"║{content.PadRight(InnerWidth)}║"
         );
+    }
+
+
+    // Writes text centered around a specific X position
+    private static void WriteAtCenter(
+        int centerX,
+        int y,
+        string text)
+    {
+        int x =
+            centerX - (text.Length / 2);
+
+        // Keep content inside the side walls.
+        x = Math.Max(1, x);
+
+        if (x + text.Length > InnerWidth + 1)
+        {
+            text = text[..Math.Max(
+                0,
+                InnerWidth + 1 - x
+            )];
+        }
+
+        Console.SetCursorPosition(
+            x,
+            y
+        );
+
+        Console.Write(text);
+    }
+
+
+    // Centers text inside a specified width
+    private static string CenterText(
+        string text,
+        int width)
+    {
+        if (text.Length >= width)
+        {
+            return text[..width];
+        }
+
+        int leftPadding =
+            (width - text.Length) / 2;
+
+        int rightPadding =
+            width - text.Length - leftPadding;
+
+        return new string(' ', leftPadding)
+             + text
+             + new string(' ', rightPadding);
     }
 }
