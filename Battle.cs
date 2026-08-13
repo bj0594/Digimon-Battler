@@ -69,45 +69,4 @@ public class Battle
     {
         return digimon.CurrentHp <= 0;
     }
-
-
-    // Executes one complete round of combat
-    public string NextRound(
-        Move playerMove,
-        Move opponentMove)
-    {
-        // Player attacks first
-        int playerDamage = Attack(
-            Player,
-            Opponent,
-            playerMove
-        );
-
-        // Return a log if the player defeated the opponent
-        if (IsFinished)
-        {
-            return $"{Player.Name} used {playerMove.Name}! " +
-                   $"{Opponent.Name} took {playerDamage} damage!";
-        }
-
-        // Opponent attacks if still alive
-        int opponentDamage = Attack(
-            Opponent,
-            Player,
-            opponentMove
-        );
-
-        // Return a log if the opponent defeated the player
-        if (IsFinished)
-        {
-            return $"{Opponent.Name} used {opponentMove.Name}! " +
-                   $"{Player.Name} took {opponentDamage} damage!";
-        }
-
-        // Move to the next round
-        Round++;
-
-        return $"{Opponent.Name} used {opponentMove.Name}! " +
-               $"{Player.Name} took {opponentDamage} damage!";
-    }
 }

@@ -8,7 +8,7 @@ bool firstTurn = true;
 
 while (!battle.IsFinished)
 {
-    // Let the player choose a move through the battle UI
+    // Player chooses a move
     Move? playerMove = BattleView.ChooseMove(
         TestData.MoveList,
         player,
@@ -19,7 +19,6 @@ while (!battle.IsFinished)
         !firstTurn
     );
 
-    // Player has no available moves
     if (playerMove == null)
     {
         battle.IsFinished = true;
@@ -27,13 +26,39 @@ while (!battle.IsFinished)
         break;
     }
 
-    // Let the opponent choose a random available move
+
+    // Player attacks
+    int playerDamage = battle.Attack(
+        player,
+        opponent,
+        playerMove
+    );
+
+    battleLog =
+        $"{player.Name} used {playerMove.Name}! " +
+        $"{opponent.Name} took {playerDamage} damage!";
+
+    BattleView.ShowBattleResult(
+        player,
+        opponent,
+        battle.Round,
+        battleLog
+    );
+
+
+    // Stop if the opponent was defeated
+    if (battle.IsFinished)
+    {
+        break;
+    }
+
+
+    // Opponent chooses a move
     Move? opponentMove = ChooseOpponentMove(
         TestData.MoveList,
         opponent
     );
 
-    // Opponent has no available moves
     if (opponentMove == null)
     {
         battle.IsFinished = true;
@@ -41,45 +66,36 @@ while (!battle.IsFinished)
         break;
     }
 
-    // Execute the round
-    battleLog = battle.NextRound(
-        playerMove,
+
+    // Opponent attacks
+    int opponentDamage = battle.Attack(
+        opponent,
+        player,
         opponentMove
     );
 
-    firstTurn = false;
+    battleLog =
+        $"{opponent.Name} used {opponentMove.Name}! " +
+        $"{player.Name} took {opponentDamage} damage!";
 
-    // Stop here if the round ended because of HP reaching zero
+    BattleView.ShowBattleResult(
+        player,
+        opponent,
+        battle.Round,
+        battleLog
+    );
+
+
+    // Stop if the player was defeated
     if (battle.IsFinished)
     {
         break;
     }
 
-    // Check whether either Digimon can still afford a Move
-    bool playerCanAttack = HasAvailableMove(
-        TestData.MoveList,
-        player
-    );
 
-    bool opponentCanAttack = HasAvailableMove(
-        TestData.MoveList,
-        opponent
-    );
-
-    if (!playerCanAttack && !opponentCanAttack)
-    {
-        battle.IsFinished = true;
-    }
-    else if (!playerCanAttack)
-    {
-        battle.IsFinished = true;
-        battle.Winner = opponent;
-    }
-    else if (!opponentCanAttack)
-    {
-        battle.IsFinished = true;
-        battle.Winner = player;
-    }
+    // Start the next round
+    firstTurn = false;
+    battle.Round++;
 }
 
 Console.Clear();

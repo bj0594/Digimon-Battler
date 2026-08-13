@@ -161,6 +161,37 @@ public static class BattleView
         }
     }
 
+    // Displays the result of an attack and waits for the player
+    public static void ShowBattleResult(
+        Digimon player,
+        Digimon opponent,
+        int round,
+        string battleLog)
+    {
+        Console.Clear();
+
+        DrawTopBorder();
+        WriteRow("DIGIMON BATTLER", true);
+        DrawSeparator();
+
+        DrawCombatants(player, opponent);
+
+        DrawSeparator();
+        WriteRow($"ROUND {round:00}", true);
+        DrawSeparator();
+
+        WriteRow("");
+
+        WriteRow(battleLog);
+
+        WriteRow("");
+
+        DrawSeparator();
+        WriteRow("Press ENTER to continue.", true);
+        DrawBottomBorder();
+
+        Console.ReadKey(true);
+    }
 
     // Handles navigation through the available Moves
     private static Move? ChooseAttack(
