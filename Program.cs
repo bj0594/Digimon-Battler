@@ -3,42 +3,59 @@ Digimon opponent = TestData.DigimonList[1];
 
 Battle battle = new Battle(player, opponent);
 
+string battleLog = "";
+
+bool firstTurn = true;
+
 while (!battle.IsFinished)
 {
-    BattleView.DrawBattleScreen(
+    // Let the player choose a move through the battle UI
+    Move? playerMove = BattleView.ChooseMove(
+        TestData.MoveList,
+        player,
         player,
         opponent,
-        battle.Round
+        battle.Round,
+        battleLog,
+        !firstTurn
     );
 
-   Move? playerMove = ChooseMove(
-    TestData.MoveList,
-    player
-);
+    // Player has no available moves
+    if (playerMove == null)
+    {
+        battle.IsFinished = true;
+        battle.Winner = opponent;
+        break;
+    }
 
-if (playerMove == null)
-{
-    battle.IsFinished = true;
-    battle.Winner = opponent;
-    break;
-}
+    // Opponent chooses a random available move
+    Move? opponentMove = ChooseOpponentMove(
+        TestData.MoveList,
+        opponent
+    );
 
-Move? opponentMove = ChooseOpponentMove(
-    TestData.MoveList,
-    opponent
-);
+    // Opponent has no available moves
+    if (opponentMove == null)
+    {
+        battle.IsFinished = true;
+        battle.Winner = player;
+        break;
+    }
 
-if (opponentMove == null)
-{
-    battle.IsFinished = true;
-    battle.Winner = player;
-    break;
-}
+    // Execute the round
+    battleLog = battle.NextRound(
+        playerMove,
+        opponentMove
+    );
+    firstTurn = false;
 
-battle.NextRound(
-    playerMove,
-    opponentMove
-);
+    // Check if the opponent has any moves left
+    if (!TestData.MoveList.Any(
+        move => move.SpCost <= opponent.CurrentSp))
+    {
+        battle.IsFinished = true;
+        battle.Winner = player;
+    }
 }
 
 Console.Clear();
@@ -53,63 +70,10 @@ if (battle.Winner != null)
 Console.ReadKey();
 
 
-static Move? ChooseMove(
-    List<Move> moves,
-    Digimon digimon)
-{
-    if (!moves.Any(move => move.SpCost <= digimon.CurrentSp))
-    {
-    return null;
-    }
-
-    while (true)
-    {
-        Console.WriteLine();
-        Console.WriteLine("Choose a move:");
-
-        for (int i = 0; i < moves.Count; i++)
-        {
-            Move move = moves[i];
-
-            if (move.SpCost <= digimon.CurrentSp)
-            {
-                Console.WriteLine(
-                    $"{i + 1}. {move.Name} - {move.SpCost} SP"
-                );
-            }
-            else
-            {
-                Console.WriteLine(
-                    $"{i + 1}. {move.Name} - Not enough SP"
-                );
-            }
-        }
-
-        Console.Write("Choice: ");
-
-        if (int.TryParse(Console.ReadLine(), out int choice) &&
-            choice >= 1 &&
-            choice <= moves.Count)
-        {
-            Move selectedMove = moves[choice - 1];
-
-            if (selectedMove.SpCost <= digimon.CurrentSp)
-            {
-                return selectedMove;
-            }
-
-            Console.WriteLine("Not enough SP.");
-        }
-        else
-        {
-            Console.WriteLine("Invalid choice. Try again.");
-        }
-    }
-}
-    static Move? ChooseOpponentMove(
+static Move? ChooseOpponentMove(
     List<Move> moves,
     Digimon opponent)
-    {
+{
     List<Move> availableMoves = moves
         .Where(move => move.SpCost <= opponent.CurrentSp)
         .ToList();
@@ -124,4 +88,4 @@ static Move? ChooseMove(
     return availableMoves[
         random.Next(availableMoves.Count)
     ];
-    }
+}

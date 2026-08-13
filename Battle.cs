@@ -22,7 +22,7 @@ public class Battle
 
 
     // Makes one Digimon attack another Digimon
-    public void Attack(
+    public int Attack(
         Digimon attacker,
         Digimon defender,
         Move move)
@@ -30,7 +30,7 @@ public class Battle
         // The attacker cannot use a move without enough SP
         if (attacker.CurrentSp < move.SpCost)
         {
-            return;
+            return 0;
         }
 
         // Spend SP
@@ -65,6 +65,7 @@ public class Battle
             IsFinished = true;
             Winner = attacker;
         }
+        return damage;
     }
 
     public bool IsDefeated(Digimon digimon)
@@ -72,26 +73,36 @@ public class Battle
     return digimon.CurrentHp <= 0;
     }
 
-    public void NextRound(Move playerMove, Move opponentMove)
+   public string NextRound(
+    Move playerMove,
+    Move opponentMove)
 {
-    // Player attacks first
-    Attack(Player, Opponent, playerMove);
+    Attack(
+        Player,
+        Opponent,
+        playerMove
+    );
 
-    // Stop if the opponent was defeated
     if (IsDefeated(Opponent))
     {
-        return;
+        return "";
     }
 
-    // Opponent attacks
-    Attack(Opponent, Player, opponentMove);
+    int damage = Attack(
+        Opponent,
+        Player,
+        opponentMove
+    );
 
-    // Stop if the player was defeated
     if (IsDefeated(Player))
     {
-        return;
+        return $"{Opponent.Name} used {opponentMove.Name}! " +
+               $"{Player.Name} took {damage} damage!";
     }
 
     Round++;
+
+    return $"{Opponent.Name} used {opponentMove.Name}! " +
+           $"{Player.Name} took {damage} damage!";
 }
 }
