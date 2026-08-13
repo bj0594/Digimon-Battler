@@ -90,6 +90,11 @@ public static class BattleView
         bool startInAttack = false,
         int selectedMove = 0)
     {
+        if (!moves.Any(move => move.SpCost <= digimon.CurrentSp))
+        {
+            return null;
+        }
+        
         int selected = 0;
 
         if (startInAttack)

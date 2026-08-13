@@ -44,19 +44,35 @@ while (!battle.IsFinished)
 
     // Execute the round
     battleLog = battle.NextRound(
-        playerMove,
-        opponentMove
+    playerMove,
+    opponentMove
     );
+
     firstTurn = false;
 
-    // Check if the opponent has any moves left
-    if (!TestData.MoveList.Any(
-        move => move.SpCost <= opponent.CurrentSp))
+    bool playerCanAttack = TestData.MoveList.Any(
+        move => move.SpCost <= player.CurrentSp
+    );
+
+    bool opponentCanAttack = TestData.MoveList.Any(
+        move => move.SpCost <= opponent.CurrentSp
+    );
+
+    if (!playerCanAttack && !opponentCanAttack)
+    {
+        battle.IsFinished = true;
+    }
+    else if (!playerCanAttack)
+    {
+        battle.IsFinished = true;
+        battle.Winner = opponent;
+    }
+    else if (!opponentCanAttack)
     {
         battle.IsFinished = true;
         battle.Winner = player;
     }
-}
+    }
 
 Console.Clear();
 
