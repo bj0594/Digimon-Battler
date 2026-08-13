@@ -67,7 +67,7 @@ public static class BattleView
 
 
     // Handles navigation through the main battle menu
-    public static Move? ChooseMove(
+    public static (Move? Move, bool Fled) ChooseMove(
         List<Move> moves,
         Digimon digimon,
         Digimon player,
@@ -79,7 +79,7 @@ public static class BattleView
         // End the battle if the Digimon cannot afford any Move
         if (!moves.Any(move => move.SpCost <= digimon.CurrentSp))
         {
-            return null;
+            return (null, true);
         }
 
         // Start directly in the Move menu after the first round
@@ -98,7 +98,7 @@ public static class BattleView
             // If ESC was pressed, return to the main battle menu
             if (move != null)
             {
-                return move;
+                return (move, false);
             }
         }
 
@@ -153,14 +153,14 @@ public static class BattleView
 
                     if (move != null)
                     {
-                        return move;
+                        return (move, false);   
                     }
                 }
-                
+
     else if (selected == 2)
     {
         // Player chooses to flee the battle
-        return null;
+        return (null, true);
     }
 
     // INFO is not implemented yet.
@@ -200,6 +200,51 @@ public static class BattleView
 
         Console.ReadKey(true);
     }
+
+    // Displays the victory screen
+public static void ShowVictoryScreen()
+{
+    Console.Clear();
+
+    Console.WriteLine();
+    Console.WriteLine();
+
+    Console.WriteLine("██╗   ██╗██╗ ██████╗████████╗ ██████╗ ██████╗ ██╗   ██╗");
+    Console.WriteLine("██║   ██║██║██╔════╝╚══██╔══╝██╔═══██╗██╔══██╗╚██╗ ██╔╝");
+    Console.WriteLine("██║   ██║██║██║        ██║   ██║   ██║██████╔╝ ╚████╔╝");
+    Console.WriteLine("╚██╗ ██╔╝██║██║        ██║   ██║   ██║██╔══██╗  ╚██╔╝");
+    Console.WriteLine(" ╚████╔╝ ██║╚██████╗   ██║   ╚██████╔╝██║  ██║   ██║");
+    Console.WriteLine("  ╚═══╝  ╚═╝ ╚═════╝   ╚═╝    ╚═════╝ ╚═╝  ╚═╝   ╚═╝");
+
+    Console.WriteLine();
+    Console.WriteLine();
+    Console.WriteLine("                 Press ENTER to try again");
+
+    Console.ReadKey(true);
+}
+
+
+// Displays the defeat screen
+public static void ShowDefeatScreen()
+{
+    Console.Clear();
+
+    Console.WriteLine();
+    Console.WriteLine();
+
+    Console.WriteLine("██████╗ ███████╗███████╗███████╗ █████╗ ████████╗");
+    Console.WriteLine("██╔══██╗██╔════╝██╔════╝██╔════╝██╔══██╗╚══██╔══╝");
+    Console.WriteLine("██║  ██║█████╗  █████╗  █████╗  ███████║   ██║");
+    Console.WriteLine("██║  ██║██╔══╝  ██╔══╝  ██╔══╝  ██╔══██║   ██║");
+    Console.WriteLine("██████╔╝███████╗██║     ███████╗██║  ██║   ██║");
+    Console.WriteLine("╚═════╝ ╚══════╝╚═╝     ╚══════╝╚═╝  ╚═╝   ╚═╝");
+
+    Console.WriteLine();
+    Console.WriteLine();
+    Console.WriteLine("                 Press ENTER to try again");
+
+    Console.ReadKey(true);
+}
 
     // Handles navigation through the available Moves
     private static Move? ChooseAttack(
