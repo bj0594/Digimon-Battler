@@ -2,7 +2,16 @@ public static class BattleView
 {
     private const int InnerWidth = 72;
     private const int BarLength = 18;
-    private static int lastSelectedMove = 0;
+
+    // Remembers the last selected Move between rounds
+    private static int lastSelectedMove;
+
+    private static readonly string[] Actions =
+    {
+        "ATTACK",
+        "INFO",
+        "FLEE"
+    };
 
     private static readonly string[] PlayerSprite =
     {
@@ -35,51 +44,33 @@ public static class BattleView
         Console.Clear();
 
         DrawTopBorder();
-
         WriteRow("DIGIMON BATTLER", true);
-
         DrawSeparator();
 
         DrawCombatants(player, opponent);
 
         DrawSeparator();
-
         WriteRow($"ROUND {round:00}", true);
-
         DrawSeparator();
 
         WriteRow("");
 
-        string[] actions =
+        for (int i = 0; i < Actions.Length; i++)
         {
-            "ATTACK",
-            "INFO",
-            "FLEE"
-        };
-
-        for (int i = 0; i < actions.Length; i++)
-        {
-            string marker =
-                i == selectedAction ? ">" : " ";
-
-            WriteRow(
-                $"   {marker} {actions[i]}"
-            );
+            string marker = i == selectedAction ? ">" : " ";
+            WriteRow($"   {marker} {Actions[i]}");
         }
 
         WriteRow("");
 
         DrawSeparator();
-
         WriteRow("BATTLE LOG");
-
         WriteRow(battleLog);
-
         DrawBottomBorder();
     }
 
 
-    // Handles the main battle menu
+    // Handles navigation through the main battle menu
     public static Move? ChooseMove(
         List<Move> moves,
         Digimon digimon,
@@ -87,16 +78,15 @@ public static class BattleView
         Digimon opponent,
         int round,
         string battleLog,
-        bool startInAttack = false,
-        int selectedMove = 0)
+        bool startInAttack = false)
     {
+        // End the battle if the Digimon cannot afford any Move
         if (!moves.Any(move => move.SpCost <= digimon.CurrentSp))
         {
             return null;
         }
-        
-        int selected = 0;
 
+        // Skip the main menu after the first round
         if (startInAttack)
         {
             return ChooseAttack(
@@ -110,6 +100,8 @@ public static class BattleView
             );
         }
 
+        int selected = 0;
+
         while (true)
         {
             DrawBattleScreen(
@@ -122,51 +114,55 @@ public static class BattleView
 
             ConsoleKey key = Console.ReadKey(true).Key;
 
-            if (key == ConsoleKey.UpArrow)
+            switch (key)
             {
-                selected--;
+                case ConsoleKey.UpArrow:
+                    selected--;
 
-                if (selected < 0)
-                {
-                    selected = 2;
-                }
-            }
-            else if (key == ConsoleKey.DownArrow)
-            {
-                selected++;
-
-                if (selected > 2)
-                {
-                    selected = 0;
-                }
-            }
-            else if (key == ConsoleKey.Enter)
-            {
-                if (selected == 0)
-                {
-                    Move? move = ChooseAttack(
-                        moves,
-                        digimon,
-                        player,
-                        opponent,
-                        round,
-                        battleLog,
-                        lastSelectedMove
-                    );
-
-                    if (move != null)
+                    if (selected < 0)
                     {
-                        return move;
+                        selected = Actions.Length - 1;
                     }
-                }
 
-                // INFO and FLEE are not implemented yet.
+                    break;
+
+                case ConsoleKey.DownArrow:
+                    selected++;
+
+                    if (selected >= Actions.Length)
+                    {
+                        selected = 0;
+                    }
+
+                    break;
+
+                case ConsoleKey.Enter:
+                    if (selected == 0)
+                    {
+                        Move? move = ChooseAttack(
+                            moves,
+                            digimon,
+                            player,
+                            opponent,
+                            round,
+                            battleLog,
+                            lastSelectedMove
+                        );
+
+                        if (move != null)
+                        {
+                            return move;
+                        }
+                    }
+
+                    // INFO and FLEE are not implemented yet.
+                    break;
             }
         }
     }
 
 
-    // Handles Move selection after choosing ATTACK
+    // Handles navigation through the available Moves
     private static Move? ChooseAttack(
         List<Move> moves,
         Digimon digimon,
@@ -195,44 +191,51 @@ public static class BattleView
 
             ConsoleKey key = Console.ReadKey(true).Key;
 
-            if (key == ConsoleKey.LeftArrow)
+            switch (key)
             {
-                column = 0;
-            }
-            else if (key == ConsoleKey.RightArrow)
-            {
-                if (column == 0 && row + 3 < moves.Count)
-                {
-                    column = 1;
-                }
-            }
-            else if (key == ConsoleKey.UpArrow)
-            {
-                if (row > 0)
-                {
-                    row--;
-                }
-            }
-            else if (key == ConsoleKey.DownArrow)
-            {
-                if (row < 2 && row + 1 < moves.Count)
-                {
-                    row++;
-                }
-            }
-            else if (key == ConsoleKey.Escape)
-            {
-                return null;
-            }
-            else if (key == ConsoleKey.Enter)
-            {
-                Move move = moves[selected];
+                case ConsoleKey.LeftArrow:
+                    column = 0;
+                    break;
 
-                if (move.SpCost <= digimon.CurrentSp)
-                {
-                    lastSelectedMove = selected;
-                    return move;
-                }
+                case ConsoleKey.RightArrow:
+                    if (column == 0 && row + 3 < moves.Count)
+                    {
+                        column = 1;
+                    }
+
+                    break;
+
+                case ConsoleKey.UpArrow:
+                    if (row > 0)
+                    {
+                        row--;
+                    }
+
+                    break;
+
+                case ConsoleKey.DownArrow:
+                    if (row < 2 && row + 1 < moves.Count)
+                    {
+                        row++;
+                    }
+
+                    break;
+
+                case ConsoleKey.Escape:
+                    return null;
+
+                case ConsoleKey.Enter:
+                    Move move = moves[selected];
+
+                    if (move.SpCost <= digimon.CurrentSp)
+                    {
+                        // Remember this position for the next round
+                        lastSelectedMove = selected;
+
+                        return move;
+                    }
+
+                    break;
             }
         }
     }
@@ -251,60 +254,36 @@ public static class BattleView
         Console.Clear();
 
         DrawTopBorder();
-
         WriteRow("DIGIMON BATTLER", true);
-
         DrawSeparator();
 
         DrawCombatants(player, opponent);
 
         DrawSeparator();
-
         WriteRow($"ROUND {round:00}", true);
-
         DrawSeparator();
 
         WriteRow("   CHOOSE MOVE");
 
+        // Display six Moves in two columns
         for (int row = 0; row < 3; row++)
         {
             int leftIndex = row;
             int rightIndex = row + 3;
 
-            string left = "";
-            string right = "";
+            string left = GetMoveText(
+                moves,
+                digimon,
+                leftIndex,
+                selected
+            );
 
-            if (leftIndex < moves.Count)
-            {
-                Move move = moves[leftIndex];
-
-                string marker =
-                    selected == leftIndex ? ">" : " ";
-
-                string status =
-                    move.SpCost <= digimon.CurrentSp
-                        ? $"{move.SpCost} SP"
-                        : "NO SP";
-
-                left =
-                    $"{marker} {move.Name,-20} {status}";
-            }
-
-            if (rightIndex < moves.Count)
-            {
-                Move move = moves[rightIndex];
-
-                string marker =
-                    selected == rightIndex ? ">" : " ";
-
-                string status =
-                    move.SpCost <= digimon.CurrentSp
-                        ? $"{move.SpCost} SP"
-                        : "NO SP";
-
-                right =
-                    $"{marker} {move.Name,-20} {status}";
-            }
+            string right = GetMoveText(
+                moves,
+                digimon,
+                rightIndex,
+                selected
+            );
 
             WriteRow(
                 $"   {left,-31}{right}"
@@ -314,12 +293,34 @@ public static class BattleView
         WriteRow("");
 
         DrawSeparator();
-
         WriteRow("BATTLE LOG");
-
         WriteRow(battleLog);
-
         DrawBottomBorder();
+    }
+
+
+    // Creates the display text for one Move
+    private static string GetMoveText(
+        List<Move> moves,
+        Digimon digimon,
+        int index,
+        int selected)
+    {
+        if (index >= moves.Count)
+        {
+            return "";
+        }
+
+        Move move = moves[index];
+
+        string marker = selected == index ? ">" : " ";
+
+        string cost =
+            move.SpCost <= digimon.CurrentSp
+                ? $"{move.SpCost} SP"
+                : "NO SP";
+
+        return $"{marker} {move.Name,-20} {cost}";
     }
 
 
@@ -336,22 +337,20 @@ public static class BattleView
             $"             {player.Attribute,-15}                 {opponent.Attribute,-15}"
         );
 
-        // Opponent starts one row higher than the player
+        // Draw the opponent one row higher than the player
         for (int i = 0; i < OpponentSprite.Length; i++)
         {
-            string playerSprite = "";
-
-            if (i > 0)
-            {
-                playerSprite = PlayerSprite[i - 1];
-            }
+            string playerSprite =
+                i > 0
+                    ? PlayerSprite[i - 1]
+                    : "";
 
             WriteRow(
                 $"             {playerSprite,-15}                 {OpponentSprite[i],-15}"
             );
         }
 
-        // Last row of the player sprite
+        // Draw the final row of the player sprite
         WriteRow(
             $"             {PlayerSprite[5],-15}"
         );
@@ -396,8 +395,7 @@ public static class BattleView
                 (InnerWidth - text.Length) / 2;
 
             text =
-                new string(' ', leftPadding) +
-                text;
+                new string(' ', leftPadding) + text;
         }
 
         Console.WriteLine(
@@ -444,18 +442,13 @@ public static class BattleView
         }
 
         int filled =
-            current * BarLength / maximum;
-
-        filled = Math.Clamp(
-            filled,
-            0,
-            BarLength
-        );
+            Math.Clamp(
+                current * BarLength / maximum,
+                0,
+                BarLength
+            );
 
         return new string('█', filled)
-             + new string(
-                 '░',
-                 BarLength - filled
-             );
+             + new string('░', BarLength - filled);
     }
 }
