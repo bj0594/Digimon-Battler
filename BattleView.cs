@@ -62,10 +62,6 @@ public static class BattleView
         }
 
         WriteRow("");
-
-        DrawSeparator();
-        WriteRow("BATTLE LOG");
-        WriteRow(battleLog);
         DrawBottomBorder();
     }
 
@@ -86,10 +82,10 @@ public static class BattleView
             return null;
         }
 
-        // Skip the main menu after the first round
+        // Start directly in the Move menu after the first round
         if (startInAttack)
         {
-            return ChooseAttack(
+            Move? move = ChooseAttack(
                 moves,
                 digimon,
                 player,
@@ -98,6 +94,12 @@ public static class BattleView
                 battleLog,
                 lastSelectedMove
             );
+
+            // If ESC was pressed, return to the main battle menu
+            if (move != null)
+            {
+                return move;
+            }
         }
 
         int selected = 0;
@@ -137,26 +139,32 @@ public static class BattleView
                     break;
 
                 case ConsoleKey.Enter:
-                    if (selected == 0)
+                if (selected == 0)
+                {
+                    Move? move = ChooseAttack(
+                        moves,
+                        digimon,
+                        player,
+                        opponent,
+                        round,
+                        battleLog,
+                        lastSelectedMove
+                    );
+
+                    if (move != null)
                     {
-                        Move? move = ChooseAttack(
-                            moves,
-                            digimon,
-                            player,
-                            opponent,
-                            round,
-                            battleLog,
-                            lastSelectedMove
-                        );
-
-                        if (move != null)
-                        {
-                            return move;
-                        }
+                        return move;
                     }
+                }
+                
+    else if (selected == 2)
+    {
+        // Player chooses to flee the battle
+        return null;
+    }
 
-                    // INFO and FLEE are not implemented yet.
-                    break;
+    // INFO is not implemented yet.
+    break;
             }
         }
     }

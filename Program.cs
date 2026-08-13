@@ -6,9 +6,10 @@ Battle battle = new Battle(player, opponent);
 string battleLog = "";
 bool firstTurn = true;
 
+
 while (!battle.IsFinished)
 {
-    // Player chooses a move
+    // Player chooses a Move
     Move? playerMove = BattleView.ChooseMove(
         TestData.MoveList,
         player,
@@ -19,6 +20,7 @@ while (!battle.IsFinished)
         !firstTurn
     );
 
+    // Player has no available Moves
     if (playerMove == null)
     {
         battle.IsFinished = true;
@@ -27,7 +29,7 @@ while (!battle.IsFinished)
     }
 
 
-    // Player attacks
+    // Player attacks first
     int playerDamage = battle.Attack(
         player,
         opponent,
@@ -38,6 +40,9 @@ while (!battle.IsFinished)
         $"{player.Name} used {playerMove.Name}! " +
         $"{opponent.Name} took {playerDamage} damage!";
 
+
+    // Show the player's attack result.
+    // ShowBattleResult waits for the player to press Enter.
     BattleView.ShowBattleResult(
         player,
         opponent,
@@ -53,12 +58,13 @@ while (!battle.IsFinished)
     }
 
 
-    // Opponent chooses a move
+    // Opponent chooses a random available Move
     Move? opponentMove = ChooseOpponentMove(
         TestData.MoveList,
         opponent
     );
 
+    // Opponent has no available Moves
     if (opponentMove == null)
     {
         battle.IsFinished = true;
@@ -67,7 +73,7 @@ while (!battle.IsFinished)
     }
 
 
-    // Opponent attacks
+    // Opponent attacks after the player continues
     int opponentDamage = battle.Attack(
         opponent,
         player,
@@ -78,6 +84,9 @@ while (!battle.IsFinished)
         $"{opponent.Name} used {opponentMove.Name}! " +
         $"{player.Name} took {opponentDamage} damage!";
 
+
+    // Show the opponent's attack result.
+    // ShowBattleResult waits for the player to press Enter.
     BattleView.ShowBattleResult(
         player,
         opponent,
@@ -97,6 +106,7 @@ while (!battle.IsFinished)
     firstTurn = false;
     battle.Round++;
 }
+
 
 Console.Clear();
 
