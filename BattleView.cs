@@ -321,11 +321,8 @@ public static class BattleView
             );
         }
 
-        WriteRow("");
+        WriteRow("   Press ESC to return");
 
-        DrawSeparator();
-        WriteRow("BATTLE LOG");
-        WriteRow(battleLog);
         DrawBottomBorder();
     }
 
