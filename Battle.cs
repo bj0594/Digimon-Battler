@@ -10,7 +10,7 @@ public class Battle
     public Digimon? Winner { get; set; }
 
 
-    // Creates a new battle
+    // Creates a new battle between two Digimon
     public Battle(Digimon player, Digimon opponent)
     {
         Player = player;
@@ -33,76 +33,81 @@ public class Battle
             return 0;
         }
 
-        // Spend SP
+        // Spend SP for the move
         attacker.CurrentSp -= move.SpCost;
 
-        // Calculate damage
-        int attackPower;
+        // Physical moves use Attack, other moves use Intelligence
+        int attackPower =
+            move.Type == "Physical"
+                ? attacker.Attack
+                : attacker.Intelligence;
 
-        if (move.Type == "Physical")
-        {
-            attackPower = attacker.Attack;
-        }
-        else
-        {
-            attackPower = attacker.Intelligence;
-        }
+        // Calculate and apply damage
+        int damage = Math.Max(
+            1,
+            attackPower + move.Power - defender.Defense
+        );
 
-        int damage = attackPower + move.Power - defender.Defense;
+        defender.CurrentHp = Math.Max(
+            0,
+            defender.CurrentHp - damage
+        );
 
-        // Always deal at least 1 damage
-        damage = Math.Max(1, damage);
-
-        // Apply damage
-        defender.CurrentHp -= damage;
-
-        // Prevent HP from going below zero
-        defender.CurrentHp = Math.Max(0, defender.CurrentHp);
-
-        // Check if the defender has been defeated
-        if (defender.CurrentHp <= 0)
+        // Check whether the defender was defeated
+        if (IsDefeated(defender))
         {
             IsFinished = true;
             Winner = attacker;
         }
+
         return damage;
     }
 
+
+    // Checks whether a Digimon has been defeated
     public bool IsDefeated(Digimon digimon)
     {
-    return digimon.CurrentHp <= 0;
+        return digimon.CurrentHp <= 0;
     }
 
-   public string NextRound(
-    Move playerMove,
-    Move opponentMove)
-{
-    Attack(
-        Player,
-        Opponent,
-        playerMove
-    );
 
-    if (IsDefeated(Opponent))
+    // Executes one complete round of combat
+    public string NextRound(
+        Move playerMove,
+        Move opponentMove)
     {
-        return "";
-    }
+        // Player attacks first
+        int playerDamage = Attack(
+            Player,
+            Opponent,
+            playerMove
+        );
 
-    int damage = Attack(
-        Opponent,
-        Player,
-        opponentMove
-    );
+        // Return a log if the player defeated the opponent
+        if (IsFinished)
+        {
+            return $"{Player.Name} used {playerMove.Name}! " +
+                   $"{Opponent.Name} took {playerDamage} damage!";
+        }
 
-    if (IsDefeated(Player))
-    {
+        // Opponent attacks if still alive
+        int opponentDamage = Attack(
+            Opponent,
+            Player,
+            opponentMove
+        );
+
+        // Return a log if the opponent defeated the player
+        if (IsFinished)
+        {
+            return $"{Opponent.Name} used {opponentMove.Name}! " +
+                   $"{Player.Name} took {opponentDamage} damage!";
+        }
+
+        // Move to the next round
+        Round++;
+
         return $"{Opponent.Name} used {opponentMove.Name}! " +
-               $"{Player.Name} took {damage} damage!";
+               $"{Player.Name} took {opponentDamage} damage!";
     }
-
-    Round++;
-
-    return $"{Opponent.Name} used {opponentMove.Name}! " +
-           $"{Player.Name} took {damage} damage!";
-}
 }
