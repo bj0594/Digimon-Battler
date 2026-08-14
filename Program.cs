@@ -1,8 +1,16 @@
 ﻿while (true)
 {
-    // Get the Digimon used in the battle
-    Digimon player = TestData.DigimonList[0];
-    Digimon opponent = TestData.DigimonList[1];
+    // Let the player choose their Digimon
+    Digimon player = BattleView.ChooseDigimon(
+        TestData.DigimonList
+    );
+
+    // Let the player choose their opponent
+    Digimon opponent = BattleView.ChooseOpponent(
+        TestData.DigimonList,
+        player
+    );
+
 
     // Reset HP and SP before starting a new battle
     player.CurrentHp = player.MaxHp;
@@ -10,6 +18,7 @@
 
     opponent.CurrentHp = opponent.MaxHp;
     opponent.CurrentSp = opponent.MaxSp;
+
 
     // Create a new battle
     Battle battle = new Battle(
@@ -63,6 +72,7 @@
             playerMove
         );
 
+
         // Show damage animation on the opponent
         BattleView.ShowDamageAnimation(
             player,
@@ -70,6 +80,7 @@
             opponent,
             battle.Round
         );
+
 
         battleLog =
             $"{player.Name} used {playerMove.Name}! " +
@@ -115,6 +126,7 @@
             opponentMove
         );
 
+
         // Show damage animation on the player
         BattleView.ShowDamageAnimation(
             player,
@@ -122,6 +134,7 @@
             player,
             battle.Round
         );
+
 
         battleLog =
             $"{opponent.Name} used {opponentMove.Name}! " +
@@ -153,7 +166,8 @@
     // Show the appropriate end-of-battle screen
     if (battle.Winner == player)
     {
-        bool playAgain = BattleView.ShowVictoryScreen();
+        bool playAgain =
+            BattleView.ShowVictoryScreen();
 
         if (!playAgain)
         {
@@ -163,7 +177,8 @@
     }
     else
     {
-        bool playAgain = BattleView.ShowDefeatScreen();
+        bool playAgain =
+            BattleView.ShowDefeatScreen();
 
         if (!playAgain)
         {
