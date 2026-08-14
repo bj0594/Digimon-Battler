@@ -1,40 +1,41 @@
 public static partial class BattleView
 {
-    // Displays the victory screen
+    private static readonly string[] VictoryTitle =
+    {
+        "██╗   ██╗██╗ ██████╗████████╗ ██████╗ ██████╗ ██╗   ██╗",
+        "██║   ██║██║██╔════╝╚══██╔══╝██╔═══██╗██╔══██╗╚██╗ ██╔╝",
+        "██║   ██║██║██║        ██║   ██║   ██║██████╔╝ ╚████╔╝",
+        "╚██╗ ██╔╝██║██║        ██║   ██║   ██║██╔══██╗  ╚██╔╝",
+        " ╚████╔╝ ██║╚██████╗   ██║   ╚██████╔╝██║  ██║   ██║",
+        "  ╚═══╝  ╚═╝ ╚═════╝   ╚═╝    ╚═════╝ ╚═╝  ╚═╝   ╚═╝"
+    };
+
+    private static readonly string[] DefeatTitle =
+    {
+        "██████╗ ███████╗███████╗███████╗ █████╗ ████████╗",
+        "██╔══██╗██╔════╝██╔════╝██╔════╝██╔══██╗╚══██╔══╝",
+        "██║  ██║█████╗  █████╗  █████╗  ███████║   ██║",
+        "██║  ██║██╔══╝  ██╔══╝  ██╔══╝  ██╔══██║   ██║",
+        "██████╔╝███████╗██║     ███████╗██║  ██║   ██║",
+        "╚═════╝ ╚══════╝╚═╝     ╚══════╝╚═╝  ╚═╝   ╚═╝"
+    };
+
+
+    // Displays the victory screen.
     public static bool ShowVictoryScreen()
     {
-        return ShowEndScreen(
-            new[]
-            {
-                "██╗   ██╗██╗ ██████╗████████╗ ██████╗ ██████╗ ██╗   ██╗",
-                "██║   ██║██║██╔════╝╚══██╔══╝██╔═══██╗██╔══██╗╚██╗ ██╔╝",
-                "██║   ██║██║██║        ██║   ██║   ██║██████╔╝ ╚████╔╝",
-                "╚██╗ ██╔╝██║██║        ██║   ██║   ██║██╔══██╗  ╚██╔╝",
-                " ╚████╔╝ ██║╚██████╗   ██║   ╚██████╔╝██║  ██║   ██║",
-                "  ╚═══╝  ╚═╝ ╚═════╝   ╚═╝    ╚═════╝ ╚═╝  ╚═╝   ╚═╝"
-            }
-        );
+        return ShowEndScreen(VictoryTitle);
     }
 
 
-    // Displays the defeat screen
+    // Displays the defeat screen.
     public static bool ShowDefeatScreen()
     {
-        return ShowEndScreen(
-            new[]
-            {
-                "██████╗ ███████╗███████╗███████╗ █████╗ ████████╗",
-                "██╔══██╗██╔════╝██╔════╝██╔════╝██╔══██╗╚══██╔══╝",
-                "██║  ██║█████╗  █████╗  █████╗  ███████║   ██║",
-                "██║  ██║██╔══╝  ██╔══╝  ██╔══╝  ██╔══██║   ██║",
-                "██████╔╝███████╗██║     ███████╗██║  ██║   ██║",
-                "╚═════╝ ╚══════╝╚═╝     ╚══════╝╚═╝  ╚═╝   ╚═╝"
-            }
-        );
+        return ShowEndScreen(DefeatTitle);
     }
 
 
-    // Displays a victory or defeat screen
+    // Displays an end-of-battle screen and waits for the player's choice.
     private static bool ShowEndScreen(
         string[] title)
     {
@@ -59,6 +60,7 @@ public static partial class BattleView
             "                 Press ESC to quit"
         );
 
+        // Ignore all keys except ENTER and ESC.
         while (true)
         {
             ConsoleKey key =

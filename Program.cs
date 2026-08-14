@@ -1,18 +1,17 @@
 ﻿while (true)
 {
-    // Let the player choose their Digimon
+    // Choose the player's Digimon and their opponent.
     Digimon player = BattleView.ChooseDigimon(
         TestData.DigimonList
     );
 
-    // Let the player choose their opponent
     Digimon opponent = BattleView.ChooseOpponent(
         TestData.DigimonList,
         player
     );
 
 
-    // Reset HP and SP before starting a new battle
+    // Reset both Digimon for a new battle.
     player.CurrentHp = player.MaxHp;
     player.CurrentSp = player.MaxSp;
 
@@ -20,7 +19,7 @@
     opponent.CurrentSp = opponent.MaxSp;
 
 
-    // Create a new battle
+    // Create a new battle using the selected Digimon.
     Battle battle = new Battle(
         player,
         opponent
@@ -30,24 +29,23 @@
     bool firstTurn = true;
 
 
-    // Main battle loop
+    // Run the battle until one side wins, flees, or runs out of moves.
     while (!battle.IsFinished)
     {
-        // Player chooses a Move or action
+        // Let the player choose a Move or battle action.
         var playerChoice = BattleView.ChooseMove(
             TestData.MoveList,
             player,
             player,
             opponent,
             battle.Round,
-            battleLog,
             !firstTurn
         );
 
         Move? playerMove = playerChoice.Move;
 
 
-        // Player chooses to flee
+        // Fleeing gives the victory to the opponent.
         if (playerChoice.Fled)
         {
             battle.IsFinished = true;
@@ -56,7 +54,7 @@
         }
 
 
-        // Player has no available Moves
+        // No Move means the player cannot continue.
         if (playerMove == null)
         {
             battle.IsFinished = true;
@@ -65,15 +63,13 @@
         }
 
 
-        // Player attacks first
+        // The player always attacks first.
         int playerDamage = battle.Attack(
             player,
             opponent,
             playerMove
         );
 
-
-        // Show damage animation on the opponent
         BattleView.ShowDamageAnimation(
             player,
             opponent,
@@ -81,13 +77,10 @@
             battle.Round
         );
 
-
         battleLog =
             $"{player.Name} used {playerMove.Name}! " +
             $"{opponent.Name} took {playerDamage} damage!";
 
-
-        // Show the player's attack result
         BattleView.ShowBattleResult(
             player,
             opponent,
@@ -96,21 +89,19 @@
         );
 
 
-        // Stop if the opponent was defeated
+        // The opponent cannot attack if they were defeated.
         if (battle.IsFinished)
         {
             break;
         }
 
 
-        // Opponent chooses a random available Move
+        // Let the opponent choose a random affordable Move.
         Move? opponentMove = ChooseOpponentMove(
             TestData.MoveList,
             opponent
         );
 
-
-        // Opponent has no available Moves
         if (opponentMove == null)
         {
             battle.IsFinished = true;
@@ -119,15 +110,13 @@
         }
 
 
-        // Opponent attacks after the player continues
+        // The opponent attacks after the player continues.
         int opponentDamage = battle.Attack(
             opponent,
             player,
             opponentMove
         );
 
-
-        // Show damage animation on the player
         BattleView.ShowDamageAnimation(
             player,
             opponent,
@@ -135,13 +124,10 @@
             battle.Round
         );
 
-
         battleLog =
             $"{opponent.Name} used {opponentMove.Name}! " +
             $"{player.Name} took {opponentDamage} damage!";
 
-
-        // Show the opponent's attack result
         BattleView.ShowBattleResult(
             player,
             opponent,
@@ -150,46 +136,33 @@
         );
 
 
-        // Stop if the player was defeated
+        // The battle ends immediately if the player was defeated.
         if (battle.IsFinished)
         {
             break;
         }
 
 
-        // Start the next round
+        // Prepare for the next round.
         firstTurn = false;
         battle.Round++;
     }
 
 
-    // Show the appropriate end-of-battle screen
-    if (battle.Winner == player)
-    {
-        bool playAgain =
-            BattleView.ShowVictoryScreen();
+    // Show the appropriate end screen.
+    bool playAgain = battle.Winner == player
+        ? BattleView.ShowVictoryScreen()
+        : BattleView.ShowDefeatScreen();
 
-        if (!playAgain)
-        {
-            Console.Clear();
-            break;
-        }
-    }
-    else
+    if (!playAgain)
     {
-        bool playAgain =
-            BattleView.ShowDefeatScreen();
-
-        if (!playAgain)
-        {
-            Console.Clear();
-            break;
-        }
+        Console.Clear();
+        break;
     }
 }
 
 
-// Chooses a random Move the opponent can afford
+// Chooses a random Move the opponent can currently afford.
 static Move? ChooseOpponentMove(
     List<Move> moves,
     Digimon opponent)

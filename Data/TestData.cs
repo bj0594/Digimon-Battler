@@ -1,8 +1,8 @@
 public static class TestData
 {
-    // Static lists to hold sample Digimon and Move data for testing
-    public static List<Digimon> DigimonList = new()
-    {
+    // Temporary Digimon data used until the real dataset is connected.
+    public static readonly List<Digimon> DigimonList =
+    [
         new Digimon
         {
             Name = "Agumon",
@@ -30,11 +30,12 @@ public static class TestData
             Intelligence = 81,
             Speed = 79
         }
-    };
+    ];
 
-    // Static list to hold sample Move data for testing
-    public static List<Move> MoveList = new()
-    {
+
+    // Temporary Move data used until the real dataset is connected.
+    public static readonly List<Move> MoveList =
+    [
         new Move
         {
             Name = "Wolkenapalm I",
@@ -88,5 +89,5 @@ public static class TestData
             SpCost = 3,
             Power = 55
         }
-    };
+    ];
 }

@@ -1,7 +1,9 @@
 public static partial class BattleView
 {
+    // Remembers the last selected Move between rounds.
     private static int lastSelectedMove;
 
+    // Available actions in the main battle menu.
     private static readonly string[] Actions =
     {
         "ATTACK",
@@ -10,7 +12,7 @@ public static partial class BattleView
     };
 
 
-    // Lets the player choose their Digimon
+    // Lets the player choose their own Digimon.
     public static Digimon ChooseDigimon(
         List<Digimon> digimonList)
     {
@@ -26,16 +28,15 @@ public static partial class BattleView
             WriteRow("CHOOSE YOUR DIGIMON", true);
             WriteRow("");
 
+            // Display every available Digimon.
             for (int i = 0; i < digimonList.Count; i++)
             {
                 string marker =
-                    i == selected
-                        ? ">"
-                        : " ";
+                    i == selected ? ">" : " ";
 
                 WriteRow(
-                    $"   {marker} {digimonList[i].Name,-20} " +
-                    $"{digimonList[i].Attribute}"
+                    $"   {marker} {digimonList[i].Name,-20}" +
+                    $" {digimonList[i].Attribute}"
                 );
             }
 
@@ -43,10 +44,7 @@ public static partial class BattleView
             WriteRow("Use ARROW KEYS and press ENTER");
             DrawBottomBorder();
 
-            ConsoleKey key =
-                Console.ReadKey(true).Key;
-
-            switch (key)
+            switch (Console.ReadKey(true).Key)
             {
                 case ConsoleKey.UpArrow:
                     selected--;
@@ -75,11 +73,12 @@ public static partial class BattleView
     }
 
 
-    // Lets the player choose their opponent
+    // Lets the player choose an opponent.
     public static Digimon ChooseOpponent(
         List<Digimon> digimonList,
         Digimon player)
     {
+        // Prevent the player from choosing their own Digimon.
         List<Digimon> opponents = digimonList
             .Where(digimon => digimon != player)
             .ToList();
@@ -96,16 +95,15 @@ public static partial class BattleView
             WriteRow("CHOOSE YOUR OPPONENT", true);
             WriteRow("");
 
+            // Display every valid opponent.
             for (int i = 0; i < opponents.Count; i++)
             {
                 string marker =
-                    i == selected
-                        ? ">"
-                        : " ";
+                    i == selected ? ">" : " ";
 
                 WriteRow(
-                    $"   {marker} {opponents[i].Name,-20} " +
-                    $"{opponents[i].Attribute}"
+                    $"   {marker} {opponents[i].Name,-20}" +
+                    $" {opponents[i].Attribute}"
                 );
             }
 
@@ -113,10 +111,7 @@ public static partial class BattleView
             WriteRow("Use ARROW KEYS and press ENTER");
             DrawBottomBorder();
 
-            ConsoleKey key =
-                Console.ReadKey(true).Key;
-
-            switch (key)
+            switch (Console.ReadKey(true).Key)
             {
                 case ConsoleKey.UpArrow:
                     selected--;
@@ -145,23 +140,23 @@ public static partial class BattleView
     }
 
 
-    // Handles navigation through the main battle menu
+    // Handles navigation through the main battle menu.
     public static (Move? Move, bool Fled) ChooseMove(
         List<Move> moves,
         Digimon digimon,
         Digimon player,
         Digimon opponent,
         int round,
-        string battleLog,
         bool startInAttack = false)
     {
-        // End the battle if no Move can be afforded
+        // The battle ends if no Move can be afforded.
         if (!HasAvailableMove(moves, digimon))
         {
             return (null, true);
         }
 
-        // Start directly in the Move menu after the first round
+
+        // After the first round, open directly in the Move menu.
         if (startInAttack)
         {
             Move? move = ChooseAttack(
@@ -170,16 +165,16 @@ public static partial class BattleView
                 player,
                 opponent,
                 round,
-                battleLog,
                 lastSelectedMove
             );
 
-            // Return to the main menu if ESC was pressed
+            // ESC returns to the main battle menu.
             if (move != null)
             {
                 return (move, false);
             }
         }
+
 
         int selected = 0;
 
@@ -189,14 +184,10 @@ public static partial class BattleView
                 player,
                 opponent,
                 round,
-                battleLog,
                 selected
             );
 
-            ConsoleKey key =
-                Console.ReadKey(true).Key;
-
-            switch (key)
+            switch (Console.ReadKey(true).Key)
             {
                 case ConsoleKey.UpArrow:
                     selected--;
@@ -220,6 +211,7 @@ public static partial class BattleView
 
                 case ConsoleKey.Enter:
 
+                    // ATTACK
                     if (selected == 0)
                     {
                         Move? move = ChooseAttack(
@@ -228,7 +220,6 @@ public static partial class BattleView
                             player,
                             opponent,
                             round,
-                            battleLog,
                             lastSelectedMove
                         );
 
@@ -237,17 +228,19 @@ public static partial class BattleView
                             return (move, false);
                         }
                     }
+
+                    // INFO
                     else if (selected == 1)
                     {
-                        // INFO does not advance the battle
                         ShowInfoScreen(
                             player,
                             opponent
                         );
                     }
+
+                    // FLEE
                     else if (selected == 2)
                     {
-                        // Player chooses to flee
                         return (null, true);
                     }
 
@@ -257,7 +250,7 @@ public static partial class BattleView
     }
 
 
-    // Checks whether a Digimon can afford at least one Move
+    // Checks whether at least one Move can be afforded.
     private static bool HasAvailableMove(
         List<Move> moves,
         Digimon digimon)
@@ -268,14 +261,13 @@ public static partial class BattleView
     }
 
 
-    // Handles navigation through the available Moves
+    // Handles navigation through the available Moves.
     private static Move? ChooseAttack(
         List<Move> moves,
         Digimon digimon,
         Digimon player,
         Digimon opponent,
         int round,
-        string battleLog,
         int selectedMove)
     {
         int row = selectedMove % 3;
@@ -292,14 +284,10 @@ public static partial class BattleView
                 player,
                 opponent,
                 round,
-                battleLog,
                 selected
             );
 
-            ConsoleKey key =
-                Console.ReadKey(true).Key;
-
-            switch (key)
+            switch (Console.ReadKey(true).Key)
             {
                 case ConsoleKey.LeftArrow:
                     column = 0;
@@ -338,6 +326,7 @@ public static partial class BattleView
 
                     break;
 
+                // Return to the main battle menu without selecting a Move.
                 case ConsoleKey.Escape:
                     return null;
 
@@ -345,11 +334,10 @@ public static partial class BattleView
 
                     Move move = moves[selected];
 
+                    // Do not allow a Move that costs more SP than available.
                     if (move.SpCost <= digimon.CurrentSp)
                     {
-                        // Remember this position for the next round
                         lastSelectedMove = selected;
-
                         return move;
                     }
 

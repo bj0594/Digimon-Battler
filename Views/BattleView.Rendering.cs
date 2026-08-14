@@ -23,12 +23,11 @@ public static partial class BattleView
     };
 
 
-    // Draws the complete battle screen
+    // Draws the main battle menu.
     public static void DrawBattleScreen(
         Digimon player,
         Digimon opponent,
         int round,
-        string battleLog,
         int selectedAction = 0)
     {
         Console.Clear();
@@ -44,10 +43,7 @@ public static partial class BattleView
 
         for (int i = 0; i < Actions.Length; i++)
         {
-            string marker =
-                i == selectedAction
-                    ? ">"
-                    : " ";
+            string marker = i == selectedAction ? ">" : " ";
 
             WriteRow(
                 $"   {marker} {Actions[i]}"
@@ -59,7 +55,7 @@ public static partial class BattleView
     }
 
 
-    // Draws the common battle screen header
+    // Draws the common header used by battle screens.
     private static void DrawHeader()
     {
         DrawTopBorder();
@@ -68,7 +64,7 @@ public static partial class BattleView
     }
 
 
-    // Draws the result of an attack
+    // Displays the result of the most recent attack.
     public static void ShowBattleResult(
         Digimon player,
         Digimon opponent,
@@ -89,25 +85,20 @@ public static partial class BattleView
         WriteRow("");
 
         DrawSeparator();
-        WriteRow(
-            "Press ENTER to continue.",
-            true
-        );
-
+        WriteRow("Press ENTER to continue.", true);
         DrawBottomBorder();
 
         Console.ReadKey(true);
     }
 
 
-    // Draws the Move selection screen
+    // Draws the Move selection menu.
     private static void DrawMoveScreen(
         List<Move> moves,
         Digimon digimon,
         Digimon player,
         Digimon opponent,
         int round,
-        string battleLog,
         int selected)
     {
         Console.Clear();
@@ -121,24 +112,22 @@ public static partial class BattleView
 
         WriteRow("   CHOOSE MOVE");
 
-        // Display Moves in two columns
+        // Display the available Moves in two columns.
         for (int row = 0; row < 3; row++)
         {
-            string left =
-                GetMoveText(
-                    moves,
-                    digimon,
-                    row,
-                    selected
-                );
+            string left = GetMoveText(
+                moves,
+                digimon,
+                row,
+                selected
+            );
 
-            string right =
-                GetMoveText(
-                    moves,
-                    digimon,
-                    row + 3,
-                    selected
-                );
+            string right = GetMoveText(
+                moves,
+                digimon,
+                row + 3,
+                selected
+            );
 
             WriteRow(
                 $"   {left,-31}{right}"
@@ -146,12 +135,11 @@ public static partial class BattleView
         }
 
         WriteRow("   Press ESC to return");
-
         DrawBottomBorder();
     }
 
 
-    // Creates the display text for one Move
+    // Creates the display text for one Move.
     private static string GetMoveText(
         List<Move> moves,
         Digimon digimon,
@@ -166,9 +154,7 @@ public static partial class BattleView
         Move move = moves[index];
 
         string marker =
-            selected == index
-                ? ">"
-                : " ";
+            selected == index ? ">" : " ";
 
         string cost =
             move.SpCost <= digimon.CurrentSp
@@ -179,7 +165,7 @@ public static partial class BattleView
     }
 
 
-    // Draws the two Digimon and their battle information
+    // Draws both Digimon, their sprites, and their HP/SP.
     private static void DrawCombatants(
         Digimon player,
         Digimon opponent,
@@ -204,7 +190,7 @@ public static partial class BattleView
             $"             {player.Attribute,-15}                 {opponent.Attribute,-15}"
         );
 
-        // Draw the opponent one row higher than the player
+        // The opponent's sprite starts one row above the player's sprite.
         for (int i = 0; i < opponentSprite.Length; i++)
         {
             string playerLine =
@@ -217,9 +203,9 @@ public static partial class BattleView
             );
         }
 
-        // Draw the final row of the player sprite
+        // Draw the final row of the player's sprite.
         WriteRow(
-            $"             {playerSprite[5],-15}"
+            $"             {playerSprite[^1],-15}"
         );
 
         WriteRow("");
@@ -245,42 +231,43 @@ public static partial class BattleView
         );
     }
 
-    // Displays a short hit animation on the damaged Digimon
-public static void ShowDamageAnimation(
-    Digimon player,
-    Digimon opponent,
-    Digimon damagedDigimon,
-    int round)
-{
-    const int frames = 4;
-    const int delay = 100;
 
-    for (int i = 0; i < frames; i++)
+    // Displays a short blinking animation on the damaged Digimon.
+    public static void ShowDamageAnimation(
+        Digimon player,
+        Digimon opponent,
+        Digimon damagedDigimon,
+        int round)
     {
-        Console.Clear();
+        const int frames = 4;
+        const int frameDelay = 100;
 
-        DrawHeader();
+        for (int frame = 0; frame < frames; frame++)
+        {
+            Console.Clear();
 
-        DrawCombatants(
-            player,
-            opponent,
-            damagedDigimon,
-            i % 2 == 0
-        );
+            DrawHeader();
 
-        DrawSeparator();
-        WriteRow($"ROUND {round:00}", true);
-        DrawSeparator();
+            DrawCombatants(
+                player,
+                opponent,
+                damagedDigimon,
+                frame % 2 == 0
+            );
 
-        WriteRow("");
+            DrawSeparator();
+            WriteRow($"ROUND {round:00}", true);
+            DrawSeparator();
 
-        DrawBottomBorder();
+            WriteRow("");
+            DrawBottomBorder();
 
-        Thread.Sleep(delay);
+            Thread.Sleep(frameDelay);
+        }
     }
-}
 
-    // Creates a damaged version of a sprite
+
+    // Creates the damaged version of a sprite used by the hit animation.
     private static string[] GetHitSprite(
         string[] sprite)
     {
@@ -295,7 +282,8 @@ public static void ShowDamageAnimation(
             .ToArray();
     }
 
-    // Creates one HP or SP display row
+
+    // Creates one aligned HP or SP row for both Digimon.
     private static string CreateStatRow(
         string label,
         int playerCurrent,
@@ -315,7 +303,7 @@ public static void ShowDamageAnimation(
     }
 
 
-    // Writes a row with exactly the same width as the battle box
+    // Writes text inside the fixed-width battle box.
     private static void WriteRow(
         string text,
         bool centered = false)
@@ -327,12 +315,11 @@ public static void ShowDamageAnimation(
 
         if (centered)
         {
-            int leftPadding =
+            int padding =
                 (InnerWidth - text.Length) / 2;
 
             text =
-                new string(' ', leftPadding) +
-                text;
+                new string(' ', padding) + text;
         }
 
         Console.WriteLine(
@@ -341,7 +328,7 @@ public static void ShowDamageAnimation(
     }
 
 
-    // Draws the top border
+    // Draws the top border of the battle box.
     private static void DrawTopBorder()
     {
         Console.WriteLine(
@@ -350,7 +337,7 @@ public static void ShowDamageAnimation(
     }
 
 
-    // Draws a horizontal separator
+    // Draws a horizontal separator.
     private static void DrawSeparator()
     {
         Console.WriteLine(
@@ -359,7 +346,7 @@ public static void ShowDamageAnimation(
     }
 
 
-    // Draws the bottom border
+    // Draws the bottom border of the battle box.
     private static void DrawBottomBorder()
     {
         Console.WriteLine(
@@ -368,7 +355,7 @@ public static void ShowDamageAnimation(
     }
 
 
-    // Creates a visual representation of a stat bar
+    // Creates a fixed-width visual bar for HP or SP.
     private static string CreateBar(
         int current,
         int maximum)

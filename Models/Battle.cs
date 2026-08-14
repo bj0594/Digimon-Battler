@@ -1,17 +1,19 @@
 public class Battle
 {
-    // Digimon participating in the battle
+    // Digimon participating in the battle.
     public Digimon Player { get; set; }
     public Digimon Opponent { get; set; }
 
-    // Current battle state
+    // Current state of the battle.
     public int Round { get; set; }
     public bool IsFinished { get; set; }
     public Digimon? Winner { get; set; }
 
 
-    // Creates a new battle between two Digimon
-    public Battle(Digimon player, Digimon opponent)
+    // Creates a new battle between two Digimon.
+    public Battle(
+        Digimon player,
+        Digimon opponent)
     {
         Player = player;
         Opponent = opponent;
@@ -21,39 +23,40 @@ public class Battle
     }
 
 
-    // Makes one Digimon attack another Digimon
+    // Performs an attack and returns the damage dealt.
     public int Attack(
         Digimon attacker,
         Digimon defender,
         Move move)
     {
-        // The attacker cannot use a move without enough SP
+        // A Move cannot be used without enough SP.
         if (attacker.CurrentSp < move.SpCost)
         {
             return 0;
         }
 
-        // Spend SP for the move
+        // Pay the Move's SP cost.
         attacker.CurrentSp -= move.SpCost;
 
-        // Physical moves use Attack, other moves use Intelligence
+        // Physical Moves use Attack; Magic Moves use Intelligence.
         int attackPower =
             move.Type == "Physical"
                 ? attacker.Attack
                 : attacker.Intelligence;
 
-        // Calculate and apply damage
+        // Calculate damage, with a minimum of 1.
         int damage = Math.Max(
             1,
             attackPower + move.Power - defender.Defense
         );
 
+        // Apply damage without allowing HP to drop below zero.
         defender.CurrentHp = Math.Max(
             0,
             defender.CurrentHp - damage
         );
 
-        // Check whether the defender was defeated
+        // End the battle if the defender was defeated.
         if (IsDefeated(defender))
         {
             IsFinished = true;
@@ -64,7 +67,7 @@ public class Battle
     }
 
 
-    // Checks whether a Digimon has been defeated
+    // Returns true when a Digimon has no HP remaining.
     public bool IsDefeated(Digimon digimon)
     {
         return digimon.CurrentHp <= 0;
