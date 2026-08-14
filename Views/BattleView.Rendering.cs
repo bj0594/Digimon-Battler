@@ -88,7 +88,10 @@ public static partial class BattleView
         WriteRow("Press ENTER to continue.", true);
         DrawBottomBorder();
 
-        Console.ReadKey(true);
+        // Wait until ENTER is pressed.
+        while (Console.ReadKey(true).Key != ConsoleKey.Enter)
+        {
+        }
     }
 
 
