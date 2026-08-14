@@ -182,8 +182,20 @@ public static partial class BattleView
     // Draws the two Digimon and their battle information
     private static void DrawCombatants(
         Digimon player,
-        Digimon opponent)
+        Digimon opponent,
+        Digimon? damagedDigimon = null,
+        bool showHit = false)
     {
+        string[] playerSprite =
+            damagedDigimon == player && showHit
+                ? GetHitSprite(PlayerSprite)
+                : PlayerSprite;
+
+        string[] opponentSprite =
+            damagedDigimon == opponent && showHit
+                ? GetHitSprite(OpponentSprite)
+                : OpponentSprite;
+
         WriteRow(
             $"             {player.Name,-15}                 {opponent.Name,-15}"
         );
@@ -193,25 +205,21 @@ public static partial class BattleView
         );
 
         // Draw the opponent one row higher than the player
-        for (
-            int i = 0;
-            i < OpponentSprite.Length;
-            i++
-        )
+        for (int i = 0; i < opponentSprite.Length; i++)
         {
-            string playerSprite =
+            string playerLine =
                 i > 0
-                    ? PlayerSprite[i - 1]
+                    ? playerSprite[i - 1]
                     : "";
 
             WriteRow(
-                $"             {playerSprite,-15}                 {OpponentSprite[i],-15}"
+                $"             {playerLine,-15}                 {opponentSprite[i],-15}"
             );
         }
 
         // Draw the final row of the player sprite
         WriteRow(
-            $"             {PlayerSprite[5],-15}"
+            $"             {playerSprite[5],-15}"
         );
 
         WriteRow("");
@@ -237,6 +245,55 @@ public static partial class BattleView
         );
     }
 
+    // Displays a short hit animation on the damaged Digimon
+public static void ShowDamageAnimation(
+    Digimon player,
+    Digimon opponent,
+    Digimon damagedDigimon,
+    int round)
+{
+    const int frames = 4;
+    const int delay = 100;
+
+    for (int i = 0; i < frames; i++)
+    {
+        Console.Clear();
+
+        DrawHeader();
+
+        DrawCombatants(
+            player,
+            opponent,
+            damagedDigimon,
+            i % 2 == 0
+        );
+
+        DrawSeparator();
+        WriteRow($"ROUND {round:00}", true);
+        DrawSeparator();
+
+        WriteRow("");
+
+        DrawBottomBorder();
+
+        Thread.Sleep(delay);
+    }
+}
+
+    // Creates a damaged version of a sprite
+    private static string[] GetHitSprite(
+        string[] sprite)
+    {
+        return sprite
+            .Select(line =>
+                line
+                    .Replace("█", "▓")
+                    .Replace("▄", "▒")
+                    .Replace("▀", "▒")
+                    .Replace("●", "×")
+            )
+            .ToArray();
+    }
 
     // Creates one HP or SP display row
     private static string CreateStatRow(

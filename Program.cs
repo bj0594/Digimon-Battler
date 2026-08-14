@@ -63,6 +63,14 @@
             playerMove
         );
 
+        // Show damage animation on the opponent
+        BattleView.ShowDamageAnimation(
+            player,
+            opponent,
+            opponent,
+            battle.Round
+        );
+
         battleLog =
             $"{player.Name} used {playerMove.Name}! " +
             $"{opponent.Name} took {playerDamage} damage!";
@@ -105,6 +113,14 @@
             opponent,
             player,
             opponentMove
+        );
+
+        // Show damage animation on the player
+        BattleView.ShowDamageAnimation(
+            player,
+            opponent,
+            player,
+            battle.Round
         );
 
         battleLog =
