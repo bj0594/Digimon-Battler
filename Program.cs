@@ -137,11 +137,23 @@
     // Show the appropriate end-of-battle screen
     if (battle.Winner == player)
     {
-        BattleView.ShowVictoryScreen();
+        bool playAgain = BattleView.ShowVictoryScreen();
+
+        if (!playAgain)
+        {
+            Console.Clear();
+            break;
+        }
     }
     else
     {
-        BattleView.ShowDefeatScreen();
+        bool playAgain = BattleView.ShowDefeatScreen();
+
+        if (!playAgain)
+        {
+            Console.Clear();
+            break;
+        }
     }
 }
 

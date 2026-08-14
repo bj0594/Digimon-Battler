@@ -2,6 +2,7 @@ public static class BattleView
 {
     private const int InnerWidth = 72;
     private const int BarLength = 18;
+    private const int InfoColumnWidth = 36;
 
     // Remembers the last selected Move between rounds
     private static int lastSelectedMove;
@@ -43,10 +44,7 @@ public static class BattleView
     {
         Console.Clear();
 
-        DrawTopBorder();
-        WriteRow("DIGIMON BATTLER", true);
-        DrawSeparator();
-
+        DrawHeader();
         DrawCombatants(player, opponent);
 
         DrawSeparator();
@@ -66,6 +64,15 @@ public static class BattleView
     }
 
 
+    // Draws the common battle screen header
+    private static void DrawHeader()
+    {
+        DrawTopBorder();
+        WriteRow("DIGIMON BATTLER", true);
+        DrawSeparator();
+    }
+
+
     // Handles navigation through the main battle menu
     public static (Move? Move, bool Fled) ChooseMove(
         List<Move> moves,
@@ -76,8 +83,8 @@ public static class BattleView
         string battleLog,
         bool startInAttack = false)
     {
-        // End the battle if the Digimon cannot afford any Move
-        if (!moves.Any(move => move.SpCost <= digimon.CurrentSp))
+        // End the battle if no Move can be afforded
+        if (!HasAvailableMove(moves, digimon))
         {
             return (null, true);
         }
@@ -95,7 +102,7 @@ public static class BattleView
                 lastSelectedMove
             );
 
-            // If ESC was pressed, return to the main battle menu
+            // If ESC was pressed, return to the main menu
             if (move != null)
             {
                 return (move, false);
@@ -139,35 +146,53 @@ public static class BattleView
                     break;
 
                 case ConsoleKey.Enter:
-                if (selected == 0)
-                {
-                    Move? move = ChooseAttack(
-                        moves,
-                        digimon,
-                        player,
-                        opponent,
-                        round,
-                        battleLog,
-                        lastSelectedMove
-                    );
-
-                    if (move != null)
+                    if (selected == 0)
                     {
-                        return (move, false);   
+                        Move? move = ChooseAttack(
+                            moves,
+                            digimon,
+                            player,
+                            opponent,
+                            round,
+                            battleLog,
+                            lastSelectedMove
+                        );
+
+                        if (move != null)
+                        {
+                            return (move, false);
+                        }
                     }
-                }
+                    else if (selected == 1)
+                    {
+                        // INFO does not advance the battle
+                        ShowInfoScreen(
+                            player,
+                            opponent
+                        );
+                    }
+                    else if (selected == 2)
+                    {
+                        // Player chooses to flee
+                        return (null, true);
+                    }
 
-    else if (selected == 2)
-    {
-        // Player chooses to flee the battle
-        return (null, true);
-    }
-
-    // INFO is not implemented yet.
-    break;
+                    break;
             }
         }
     }
+
+
+    // Checks whether a Digimon can afford at least one Move
+    private static bool HasAvailableMove(
+        List<Move> moves,
+        Digimon digimon)
+    {
+        return moves.Any(
+            move => move.SpCost <= digimon.CurrentSp
+        );
+    }
+
 
     // Displays the result of an attack and waits for the player
     public static void ShowBattleResult(
@@ -178,10 +203,7 @@ public static class BattleView
     {
         Console.Clear();
 
-        DrawTopBorder();
-        WriteRow("DIGIMON BATTLER", true);
-        DrawSeparator();
-
+        DrawHeader();
         DrawCombatants(player, opponent);
 
         DrawSeparator();
@@ -189,9 +211,7 @@ public static class BattleView
         DrawSeparator();
 
         WriteRow("");
-
         WriteRow(battleLog);
-
         WriteRow("");
 
         DrawSeparator();
@@ -201,50 +221,190 @@ public static class BattleView
         Console.ReadKey(true);
     }
 
+
+    // Displays information about both Digimon
+    public static void ShowInfoScreen(
+        Digimon player,
+        Digimon opponent)
+    {
+        while (true)
+        {
+            Console.Clear();
+
+            DrawHeader();
+
+            WriteRow("");
+            WriteRow("DIGIMON INFO", true);
+            WriteRow("");
+
+            // Display names and attributes
+            WriteInfoRow(
+                player.Name,
+                opponent.Name
+            );
+
+            WriteInfoRow(
+                player.Attribute,
+                opponent.Attribute
+            );
+
+            WriteRow("");
+
+            // Display HP and SP
+            WriteInfoStatRow(
+                "HP",
+                $"{player.CurrentHp}/{player.MaxHp}",
+                $"{opponent.CurrentHp}/{opponent.MaxHp}"
+            );
+
+            WriteInfoStatRow(
+                "SP",
+                $"{player.CurrentSp}/{player.MaxSp}",
+                $"{opponent.CurrentSp}/{opponent.MaxSp}"
+            );
+
+            WriteRow("");
+
+            // Display combat stats
+            WriteInfoStatRow(
+                "Attack",
+                player.Attack.ToString(),
+                opponent.Attack.ToString()
+            );
+
+            WriteInfoStatRow(
+                "Defense",
+                player.Defense.ToString(),
+                opponent.Defense.ToString()
+            );
+
+            WriteInfoStatRow(
+                "Intelligence",
+                player.Intelligence.ToString(),
+                opponent.Intelligence.ToString()
+            );
+
+            WriteInfoStatRow(
+                "Speed",
+                player.Speed.ToString(),
+                opponent.Speed.ToString()
+            );
+
+            WriteRow("");
+
+            DrawSeparator();
+            WriteRow("Press ESC to return.", true);
+            DrawBottomBorder();
+
+            // INFO only responds to ESC
+            if (Console.ReadKey(true).Key == ConsoleKey.Escape)
+            {
+                return;
+            }
+        }
+    }
+
+
+    // Writes two pieces of information in aligned columns
+    private static void WriteInfoRow(
+        string playerText,
+        string opponentText)
+    {
+        string line =
+            $"    {playerText,-InfoColumnWidth}{opponentText}";
+
+        WriteRow(line);
+    }
+
+
+    // Writes a labelled stat for both Digimon
+    private static void WriteInfoStatRow(
+        string label,
+        string playerValue,
+        string opponentValue)
+    {
+        WriteInfoRow(
+            $"{label,-14}{playerValue}",
+            $"{label,-14}{opponentValue}"
+        );
+    }
+
+
     // Displays the victory screen
-public static void ShowVictoryScreen()
-{
-    Console.Clear();
-
-    Console.WriteLine();
-    Console.WriteLine();
-
-    Console.WriteLine("██╗   ██╗██╗ ██████╗████████╗ ██████╗ ██████╗ ██╗   ██╗");
-    Console.WriteLine("██║   ██║██║██╔════╝╚══██╔══╝██╔═══██╗██╔══██╗╚██╗ ██╔╝");
-    Console.WriteLine("██║   ██║██║██║        ██║   ██║   ██║██████╔╝ ╚████╔╝");
-    Console.WriteLine("╚██╗ ██╔╝██║██║        ██║   ██║   ██║██╔══██╗  ╚██╔╝");
-    Console.WriteLine(" ╚████╔╝ ██║╚██████╗   ██║   ╚██████╔╝██║  ██║   ██║");
-    Console.WriteLine("  ╚═══╝  ╚═╝ ╚═════╝   ╚═╝    ╚═════╝ ╚═╝  ╚═╝   ╚═╝");
-
-    Console.WriteLine();
-    Console.WriteLine();
-    Console.WriteLine("                 Press ENTER to try again");
-
-    Console.ReadKey(true);
-}
+    public static bool ShowVictoryScreen()
+    {
+        return ShowEndScreen(
+            new[]
+            {
+                "██╗   ██╗██╗ ██████╗████████╗ ██████╗ ██████╗ ██╗   ██╗",
+                "██║   ██║██║██╔════╝╚══██╔══╝██╔═══██╗██╔══██╗╚██╗ ██╔╝",
+                "██║   ██║██║██║        ██║   ██║   ██║██████╔╝ ╚████╔╝",
+                "╚██╗ ██╔╝██║██║        ██║   ██║   ██║██╔══██╗  ╚██╔╝",
+                " ╚████╔╝ ██║╚██████╗   ██║   ╚██████╔╝██║  ██║   ██║",
+                "  ╚═══╝  ╚═╝ ╚═════╝   ╚═╝    ╚═════╝ ╚═╝  ╚═╝   ╚═╝"
+            }
+        );
+    }
 
 
-// Displays the defeat screen
-public static void ShowDefeatScreen()
-{
-    Console.Clear();
+    // Displays the defeat screen
+    public static bool ShowDefeatScreen()
+    {
+        return ShowEndScreen(
+            new[]
+            {
+                "██████╗ ███████╗███████╗███████╗ █████╗ ████████╗",
+                "██╔══██╗██╔════╝██╔════╝██╔════╝██╔══██╗╚══██╔══╝",
+                "██║  ██║█████╗  █████╗  █████╗  ███████║   ██║",
+                "██║  ██║██╔══╝  ██╔══╝  ██╔══╝  ██╔══██║   ██║",
+                "██████╔╝███████╗██║     ███████╗██║  ██║   ██║",
+                "╚═════╝ ╚══════╝╚═╝     ╚══════╝╚═╝  ╚═╝   ╚═╝"
+            }
+        );
+    }
 
-    Console.WriteLine();
-    Console.WriteLine();
 
-    Console.WriteLine("██████╗ ███████╗███████╗███████╗ █████╗ ████████╗");
-    Console.WriteLine("██╔══██╗██╔════╝██╔════╝██╔════╝██╔══██╗╚══██╔══╝");
-    Console.WriteLine("██║  ██║█████╗  █████╗  █████╗  ███████║   ██║");
-    Console.WriteLine("██║  ██║██╔══╝  ██╔══╝  ██╔══╝  ██╔══██║   ██║");
-    Console.WriteLine("██████╔╝███████╗██║     ███████╗██║  ██║   ██║");
-    Console.WriteLine("╚═════╝ ╚══════╝╚═╝     ╚══════╝╚═╝  ╚═╝   ╚═╝");
+    // Displays a victory or defeat screen
+    private static bool ShowEndScreen(
+        string[] title)
+    {
+        Console.Clear();
 
-    Console.WriteLine();
-    Console.WriteLine();
-    Console.WriteLine("                 Press ENTER to try again");
+        Console.WriteLine();
+        Console.WriteLine();
 
-    Console.ReadKey(true);
-}
+        foreach (string line in title)
+        {
+            Console.WriteLine(line);
+        }
+
+        Console.WriteLine();
+        Console.WriteLine();
+        Console.WriteLine(
+            "                 Press ENTER to try again"
+        );
+        Console.WriteLine(
+            "                 Press ESC to quit"
+        );
+
+        while (true)
+        {
+            ConsoleKey key =
+                Console.ReadKey(true).Key;
+
+            if (key == ConsoleKey.Enter)
+            {
+                return true;
+            }
+
+            if (key == ConsoleKey.Escape)
+            {
+                Console.Clear();
+                return false;
+            }
+        }
+    }
+
 
     // Handles navigation through the available Moves
     private static Move? ChooseAttack(
@@ -261,7 +421,8 @@ public static void ShowDefeatScreen()
 
         while (true)
         {
-            int selected = row + column * 3;
+            int selected =
+                row + column * 3;
 
             DrawMoveScreen(
                 moves,
@@ -273,7 +434,8 @@ public static void ShowDefeatScreen()
                 selected
             );
 
-            ConsoleKey key = Console.ReadKey(true).Key;
+            ConsoleKey key =
+                Console.ReadKey(true).Key;
 
             switch (key)
             {
@@ -282,7 +444,10 @@ public static void ShowDefeatScreen()
                     break;
 
                 case ConsoleKey.RightArrow:
-                    if (column == 0 && row + 3 < moves.Count)
+                    if (
+                        column == 0 &&
+                        row + 3 < moves.Count
+                    )
                     {
                         column = 1;
                     }
@@ -298,7 +463,10 @@ public static void ShowDefeatScreen()
                     break;
 
                 case ConsoleKey.DownArrow:
-                    if (row < 2 && row + 1 < moves.Count)
+                    if (
+                        row < 2 &&
+                        row + 1 < moves.Count
+                    )
                     {
                         row++;
                     }
@@ -325,7 +493,7 @@ public static void ShowDefeatScreen()
     }
 
 
-    // Draws the battle screen with the Move selection menu
+    // Draws the Move selection screen
     private static void DrawMoveScreen(
         List<Move> moves,
         Digimon digimon,
@@ -337,10 +505,7 @@ public static void ShowDefeatScreen()
     {
         Console.Clear();
 
-        DrawTopBorder();
-        WriteRow("DIGIMON BATTLER", true);
-        DrawSeparator();
-
+        DrawHeader();
         DrawCombatants(player, opponent);
 
         DrawSeparator();
@@ -349,25 +514,24 @@ public static void ShowDefeatScreen()
 
         WriteRow("   CHOOSE MOVE");
 
-        // Display six Moves in two columns
+        // Display Moves in two columns
         for (int row = 0; row < 3; row++)
         {
-            int leftIndex = row;
-            int rightIndex = row + 3;
+            string left =
+                GetMoveText(
+                    moves,
+                    digimon,
+                    row,
+                    selected
+                );
 
-            string left = GetMoveText(
-                moves,
-                digimon,
-                leftIndex,
-                selected
-            );
-
-            string right = GetMoveText(
-                moves,
-                digimon,
-                rightIndex,
-                selected
-            );
+            string right =
+                GetMoveText(
+                    moves,
+                    digimon,
+                    row + 3,
+                    selected
+                );
 
             WriteRow(
                 $"   {left,-31}{right}"
@@ -375,7 +539,6 @@ public static void ShowDefeatScreen()
         }
 
         WriteRow("   Press ESC to return");
-
         DrawBottomBorder();
     }
 
@@ -394,7 +557,10 @@ public static void ShowDefeatScreen()
 
         Move move = moves[index];
 
-        string marker = selected == index ? ">" : " ";
+        string marker =
+            selected == index
+                ? ">"
+                : " ";
 
         string cost =
             move.SpCost <= digimon.CurrentSp
@@ -419,7 +585,11 @@ public static void ShowDefeatScreen()
         );
 
         // Draw the opponent one row higher than the player
-        for (int i = 0; i < OpponentSprite.Length; i++)
+        for (
+            int i = 0;
+            i < OpponentSprite.Length;
+            i++
+        )
         {
             string playerSprite =
                 i > 0
@@ -438,25 +608,45 @@ public static void ShowDefeatScreen()
 
         WriteRow("");
 
-        string playerHp =
-            $"HP {CreateBar(player.CurrentHp, player.MaxHp)} {player.CurrentHp,4}/{player.MaxHp,-4}";
-
-        string opponentHp =
-            $"HP {CreateBar(opponent.CurrentHp, opponent.MaxHp)} {opponent.CurrentHp,4}/{opponent.MaxHp,-4}";
-
-        string playerSp =
-            $"SP {CreateBar(player.CurrentSp, player.MaxSp)} {player.CurrentSp,4}/{player.MaxSp,-4}";
-
-        string opponentSp =
-            $"SP {CreateBar(opponent.CurrentSp, opponent.MaxSp)} {opponent.CurrentSp,4}/{opponent.MaxSp,-4}";
-
         WriteRow(
-            $"{playerHp}       {opponentHp}"
+            CreateStatRow(
+                "HP",
+                player.CurrentHp,
+                player.MaxHp,
+                opponent.CurrentHp,
+                opponent.MaxHp
+            )
         );
 
         WriteRow(
-            $"{playerSp}       {opponentSp}"
+            CreateStatRow(
+                "SP",
+                player.CurrentSp,
+                player.MaxSp,
+                opponent.CurrentSp,
+                opponent.MaxSp
+            )
         );
+    }
+
+
+    // Creates one HP or SP display row
+    private static string CreateStatRow(
+        string label,
+        int playerCurrent,
+        int playerMaximum,
+        int opponentCurrent,
+        int opponentMaximum)
+    {
+        string playerStat =
+            $"{label} {CreateBar(playerCurrent, playerMaximum)} " +
+            $"{playerCurrent,4}/{playerMaximum,-4}";
+
+        string opponentStat =
+            $"{label} {CreateBar(opponentCurrent, opponentMaximum)} " +
+            $"{opponentCurrent,4}/{opponentMaximum,-4}";
+
+        return $"{playerStat}       {opponentStat}";
     }
 
 
@@ -476,7 +666,8 @@ public static void ShowDefeatScreen()
                 (InnerWidth - text.Length) / 2;
 
             text =
-                new string(' ', leftPadding) + text;
+                new string(' ', leftPadding) +
+                text;
         }
 
         Console.WriteLine(
@@ -530,6 +721,9 @@ public static void ShowDefeatScreen()
             );
 
         return new string('█', filled)
-             + new string('░', BarLength - filled);
+             + new string(
+                 '░',
+                 BarLength - filled
+             );
     }
 }
