@@ -180,6 +180,7 @@ public static partial class BattleView
 
                 WriteRow(
                     $"   {marker} {opponents[i].Name,-20}" +
+                    $" {opponents[i].Stage,-12}" +
                     $" {opponents[i].Attribute}"
                 );
             }
@@ -216,6 +217,49 @@ public static partial class BattleView
         }
     }
 
+    // Lets the player confirm the selected Digimon and opponent.
+    public static bool ConfirmBattle(
+        Digimon player,
+        Digimon opponent)
+    {
+        while (true)
+        {
+            Console.Clear();
+
+            DrawHeader();
+
+            WriteRow("");
+            WriteRow("BATTLE READY", true);
+            WriteRow("");
+
+            WriteRow(
+                $"   {player.Name,-20}" +
+                $" {player.Stage,-12}" +
+                $" {player.Attribute}"
+            );
+
+            WriteRow(
+                $"   {opponent.Name,-20}" +
+                $" {opponent.Stage,-12}" +
+                $" {opponent.Attribute}"
+            );
+
+            WriteRow("");
+            WriteRow("Press ENTER to fight.", true);
+            WriteRow("Press ESC to cancel.", true);
+
+            DrawBottomBorder();
+
+            switch (Console.ReadKey(true).Key)
+            {
+                case ConsoleKey.Enter:
+                    return true;
+
+                case ConsoleKey.Escape:
+                    return false;
+            }
+        }
+    }
 
     // Handles navigation through the main battle menu.
     public static (Move? Move, bool Fled) ChooseMove(

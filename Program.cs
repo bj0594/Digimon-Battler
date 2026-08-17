@@ -27,6 +27,11 @@ while (true)
         player
     );
 
+    // Confirm the selected Digimon before starting the battle.
+    if (!BattleView.ConfirmBattle(player, opponent))
+    {
+        continue;
+    }
 
     // Reset both Digimon for a new battle.
     player.CurrentHp = player.MaxHp;
