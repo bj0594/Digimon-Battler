@@ -1,12 +1,23 @@
-﻿while (true)
+﻿// Program reads both CSV files before running
+List<Digimon> digimonList =
+    CsvReader.ReadDigimon(
+        "Data/DigiDB_digimonlist.csv"
+    );
+
+List<Move> moveList =
+    CsvReader.ReadMoves(
+        "Data/DigiDB_movelist.csv"
+    );
+
+while (true)
 {
     // Choose the player's Digimon and their opponent.
     Digimon player = BattleView.ChooseDigimon(
-        TestData.DigimonList
+        digimonList
     );
 
     Digimon opponent = BattleView.ChooseOpponent(
-        TestData.DigimonList,
+        digimonList,
         player
     );
 
@@ -34,7 +45,7 @@
     {
         // Let the player choose a Move or battle action.
         var playerChoice = BattleView.ChooseMove(
-            TestData.MoveList,
+            moveList,
             player,
             player,
             opponent,
@@ -98,7 +109,7 @@
 
         // Let the opponent choose a random affordable Move.
         Move? opponentMove = ChooseOpponentMove(
-            TestData.MoveList,
+            moveList,
             opponent
         );
 
