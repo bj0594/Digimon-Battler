@@ -33,6 +33,20 @@ while (true)
         continue;
     }
 
+    // Get Moves matching the player's Attribute or Neutral Moves.
+    List<Move> playerMoves = moveList
+        .Where(move =>
+            move.Attribute == player.Attribute ||
+            move.Attribute == "Neutral")
+        .ToList();
+
+    // Get Moves matching the opponent's Attribute or Neutral Moves.
+    List<Move> opponentMoves = moveList
+        .Where(move =>
+            move.Attribute == opponent.Attribute ||
+            move.Attribute == "Neutral")
+        .ToList();
+
     // Reset both Digimon for a new battle.
     player.CurrentHp = player.MaxHp;
     player.CurrentSp = player.MaxSp;
@@ -56,7 +70,7 @@ while (true)
     {
         // Let the player choose a Move or battle action.
         var playerChoice = BattleView.ChooseMove(
-            moveList,
+            playerMoves,
             player,
             player,
             opponent,
@@ -120,7 +134,7 @@ while (true)
 
         // Let the opponent choose a random affordable Move.
         Move? opponentMove = ChooseOpponentMove(
-            moveList,
+            opponentMoves,
             opponent
         );
 
