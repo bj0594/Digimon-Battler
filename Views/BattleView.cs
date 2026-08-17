@@ -82,6 +82,12 @@ public static partial class BattleView
         List<Digimon> digimonList,
         string selectedAttribute)
     {
+        // Only show Digimon with the selected Attribute.
+        List<Digimon> availableDigimon = digimonList
+            .Where(digimon => digimon.Attribute == selectedAttribute)
+            .OrderBy(digimon => digimon.Name)
+            .ToList();
+
         int selected = 0;
 
         while (true)
@@ -95,14 +101,14 @@ public static partial class BattleView
             WriteRow("");
 
             // Display every available Digimon.
-            for (int i = 0; i < digimonList.Count; i++)
+            for (int i = 0; i < availableDigimon.Count; i++)
             {
                 string marker =
                     i == selected ? ">" : " ";
 
                 WriteRow(
-                    $"   {marker} {digimonList[i].Name,-20}" +
-                    $" {digimonList[i].Attribute}"
+                    $"   {marker} {availableDigimon[i].Name,-20}" +
+                    $" {availableDigimon[i].Stage}"
                 );
             }
 
@@ -117,7 +123,7 @@ public static partial class BattleView
 
                     if (selected < 0)
                     {
-                        selected = digimonList.Count - 1;
+                        selected = availableDigimon.Count - 1;
                     }
 
                     break;
@@ -125,7 +131,7 @@ public static partial class BattleView
                 case ConsoleKey.DownArrow:
                     selected++;
 
-                    if (selected >= digimonList.Count)
+                    if (selected >= availableDigimon.Count)
                     {
                         selected = 0;
                     }
@@ -133,7 +139,7 @@ public static partial class BattleView
                     break;
 
                 case ConsoleKey.Enter:
-                    return digimonList[selected];
+                    return availableDigimon[selected];
             }
         }
     }
@@ -149,7 +155,9 @@ public static partial class BattleView
         List<Digimon> opponents = digimonList
             .Where(digimon =>
                 digimon.Stage == player.Stage &&
+                digimon.Attribute != player.Attribute &&
                 digimon != player)
+            .OrderBy(digimon => digimon.Name)
             .ToList();
 
         int selected = 0;
