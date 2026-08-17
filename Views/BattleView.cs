@@ -11,10 +11,76 @@ public static partial class BattleView
         "FLEE"
     };
 
+    // Lets the player choose an Attribute.
+    public static string ChooseAttribute(
+        List<Digimon> digimonList)
+    {
+        // Get all unique Attributes from the dataset.
+        List<string> attributes = digimonList
+            .Select(digimon => digimon.Attribute)
+            .Distinct()
+            .OrderBy(attribute => attribute)
+            .ToList();
+
+        int selected = 0;
+
+        while (true)
+        {
+            Console.Clear();
+
+            DrawHeader();
+
+            WriteRow("");
+            WriteRow("CHOOSE ATTRIBUTE", true);
+            WriteRow("");
+
+            // Display every available Attribute.
+            for (int i = 0; i < attributes.Count; i++)
+            {
+                string marker =
+                    i == selected ? ">" : " ";
+
+                WriteRow(
+                    $"   {marker} {attributes[i]}"
+                );
+            }
+
+            WriteRow("");
+            WriteRow("Use ARROW KEYS and press ENTER");
+            DrawBottomBorder();
+
+            switch (Console.ReadKey(true).Key)
+            {
+                case ConsoleKey.UpArrow:
+                    selected--;
+
+                    if (selected < 0)
+                    {
+                        selected = attributes.Count - 1;
+                    }
+
+                    break;
+
+                case ConsoleKey.DownArrow:
+                    selected++;
+
+                    if (selected >= attributes.Count)
+                    {
+                        selected = 0;
+                    }
+
+                    break;
+
+                case ConsoleKey.Enter:
+                    return attributes[selected];
+            }
+        }
+    }
 
     // Lets the player choose their own Digimon.
     public static Digimon ChooseDigimon(
-        List<Digimon> digimonList)
+        List<Digimon> digimonList,
+        string selectedAttribute)
     {
         int selected = 0;
 

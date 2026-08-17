@@ -11,9 +11,15 @@ List<Move> moveList =
 
 while (true)
 {
-    // Choose the player's Digimon and their opponent.
-    Digimon player = BattleView.ChooseDigimon(
+    // Let the player choose an Attribute first.
+    string selectedAttribute = BattleView.ChooseAttribute(
         digimonList
+    );
+
+    // Let the player choose a Digimon with that Attribute.
+    Digimon player = BattleView.ChooseDigimon(
+        digimonList,
+        selectedAttribute
     );
 
     Digimon opponent = BattleView.ChooseOpponent(
