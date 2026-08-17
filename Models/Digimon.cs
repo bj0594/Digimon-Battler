@@ -1,17 +1,17 @@
 public class Digimon
 {
-    // Basic Digimon information.
+    // Properties to hold the Digimon's basic information
     public string Name { get; set; }
+    public string Stage { get; set; }
     public string Attribute { get; set; }
 
-    // Health and resource values.
+    // Properties to hold the Digimon's stats
     public int MaxHp { get; set; }
     public int CurrentHp { get; set; }
 
     public int MaxSp { get; set; }
     public int CurrentSp { get; set; }
 
-    // Combat stats.
     public int Attack { get; set; }
     public int Defense { get; set; }
     public int Intelligence { get; set; }

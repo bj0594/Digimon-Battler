@@ -78,9 +78,12 @@ public static partial class BattleView
         List<Digimon> digimonList,
         Digimon player)
     {
-        // Prevent the player from choosing their own Digimon.
+        // Only allow opponents from the same Stage as the player's Digimon.
+        // The player cannot choose their own Digimon.
         List<Digimon> opponents = digimonList
-            .Where(digimon => digimon != player)
+            .Where(digimon =>
+                digimon.Stage == player.Stage &&
+                digimon != player)
             .ToList();
 
         int selected = 0;
