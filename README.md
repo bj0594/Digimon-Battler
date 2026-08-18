@@ -1,72 +1,119 @@
 # Digimon Battler
 
-A terminal-based Digimon battle application built with C#.
+A small terminal-based Digimon battle game made with C# and .NET.
 
 ## About
 
-Digimon Battler is an interactive console application where the user
-can select Digimon and battle opponents using moves from the DigiDB
-CSV datasets.
+This project uses the DigiDB Digimon and Move datasets from CSV files.
 
-The project explores CSV handling, C# object modelling and LINQ
-through an interactive application rather than a traditional data
-viewer.
+The data is read into C# objects and queried with LINQ. Instead of making
+a traditional data viewer, I used the dataset as the foundation for a
+simple playable battle system.
 
-## Goal
+The player chooses an Attribute, picks a Digimon, chooses an opponent and
+then fights using available Moves. HP and SP are tracked throughout the
+battle.
 
-The goal is to:
+## How it works
 
-- Read and process CSV data
-- Map CSV rows to C# objects
-- Use LINQ to query and manipulate the data
-- Build an interactive terminal application
-- Use the dataset as the foundation for a simple battle system
+The program starts by reading both CSV files with `CsvReader`.
 
-## Data
+The CSV rows are mapped to two models:
 
-The project uses the DigiDB datasets:
+- `Digimon` — contains the Digimon's name, stage, Attribute and stats.
+- `Move` — contains the Move's name, Attribute, type, power, SP cost and
+  whether it is inheritable.
 
-- `digimonlist.csv` — Digimon attributes and stats
-- `movelist.csv` — Move attributes, power and SP cost
+LINQ is used to filter and sort the data. For example:
 
-The `Attribute` field will be used to connect Digimon with relevant
-moves in the battle system.
+List<string> attributes = digimonList
+    .Select(digimon => digimon.Attribute)
+    .Distinct()
+    .OrderBy(attribute => attribute)
+    .ToList();
 
-## Planned Features
+`Where()` is used to find Digimon with a specific Attribute, valid
+opponents, and Moves available to each Digimon.
 
-- Browse and search Digimon
-- Select a player Digimon
-- Select an opponent
-- Select available moves
-- Use HP and SP during battles
-- Calculate damage using Digimon stats and Move Power
-- Determine the winner
-- Use LINQ for filtering, sorting and statistics
+`OrderBy()`, `Distinct()` and `Any()` are also used throughout the
+application.
 
-## LINQ
+## Battle system
 
-LINQ will be used to:
+The battle system is handled by the `Battle` class.
 
-- Find and filter Digimon
-- Find moves matching a Digimon's Attribute
-- Sort Digimon and moves by their stats
-- Find strongest/weakest values
-- Calculate statistics and comparisons
+Physical Moves use Attack and Magic Moves use Intelligence. Damage is
+calculated from the attacker's stat, the Move's Power and the defender's
+Defense.
 
-## Project Plan
+A Move can only be used when the Digimon has enough SP.
 
-1. Set up project and datasets
-2. Create C# models
-3. Read and map CSV data
-4. Implement LINQ queries
-5. Build battle system
-6. Build interactive terminal interface
-7. Test and refine
+The player can also view both Digimon's stats or flee from battle.
 
-## Technologies
+## Project structure
 
-- C#
-- .NET
-- LINQ
-- CSV
-- Console Application
+```text
+Data/
+├── DigiDB_digimonlist.csv
+└── DigiDB_movelist.csv
+
+Battle.cs
+BattleView.cs
+BattleView.EndScreens.cs
+BattleView.Info.cs
+BattleView.Rendering.cs
+CsvReader.cs
+Digimon.cs
+Move.cs
+Program.cs
+```
+
+The main responsibilities are:
+
+- `Program.cs` — controls the application and battle loop.
+- `CsvReader.cs` — reads and maps the CSV files.
+- `Digimon.cs` / `Move.cs` — data models.
+- `Battle.cs` — battle and damage logic.
+- `BattleView*.cs` — menus, input and terminal presentation.
+
+## Program flow
+
+```text
+Read CSV files
+      ↓
+Choose Attribute
+      ↓
+Choose Digimon
+      ↓
+Choose opponent
+      ↓
+Confirm battle
+      ↓
+Filter available Moves
+      ↓
+Battle
+      ↓
+Victory / Defeat
+      ↓
+Play again or quit
+```
+
+## Data and LINQ
+
+The project demonstrates several ways of working with the CSV dataset:
+
+- `File.ReadAllLines()` reads the CSV files.
+- `Split()` is used to separate CSV values.
+- `Select()` retrieves properties from the dataset.
+- `Where()` filters the data.
+- `OrderBy()` sorts results.
+- `Distinct()` removes duplicate Attributes.
+- `Any()` checks whether matching data exists.
+
+## Running the project
+
+Make sure the CSV files are inside the `Data` folder and run:
+
+```bash
+dotnet run
+```

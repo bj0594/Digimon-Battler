@@ -9,6 +9,6 @@ public class Move
     public int SpCost { get; set; }
     public int Power { get; set; }
 
-    // What moves are available if inheritable
+    // Indicates whether the Move can be inherited
     public bool Inheritable { get; set; }
 }

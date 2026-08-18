@@ -68,7 +68,7 @@ public class Battle
 
 
     // Returns true when a Digimon has no HP remaining.
-    public bool IsDefeated(Digimon digimon)
+    private bool IsDefeated(Digimon digimon)
     {
         return digimon.CurrentHp <= 0;
     }
