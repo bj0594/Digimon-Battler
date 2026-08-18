@@ -54,7 +54,8 @@ public static class CsvReader
                 SpCost = int.Parse(values[1]),
                 Type = values[2],
                 Power = int.Parse(values[3]),
-                Attribute = values[4]
+                Attribute = values[4],
+                Inheritable = values[5] == "Yes"
             };
 
             moveList.Add(move);

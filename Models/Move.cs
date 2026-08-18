@@ -8,4 +8,7 @@ public class Move
     // Resource cost and damage power.
     public int SpCost { get; set; }
     public int Power { get; set; }
+
+    // What moves are available if inheritable
+    public bool Inheritable { get; set; }
 }

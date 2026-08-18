@@ -463,63 +463,73 @@ public static partial class BattleView
         int round,
         int selectedMove)
     {
-        int row = selectedMove % 3;
-        int column = selectedMove / 3;
+        int selected = selectedMove;
+        int scrollOffset = selected / 6;
 
         while (true)
         {
-            int selected =
-                row + column * 3;
-
             DrawMoveScreen(
                 moves,
                 digimon,
                 player,
                 opponent,
                 round,
-                selected
+                selected,
+                scrollOffset
             );
 
             switch (Console.ReadKey(true).Key)
             {
-                case ConsoleKey.LeftArrow:
-                    column = 0;
-                    break;
-
-                case ConsoleKey.RightArrow:
-
-                    if (
-                        column == 0 &&
-                        row + 3 < moves.Count
-                    )
-                    {
-                        column = 1;
-                    }
-
-                    break;
-
                 case ConsoleKey.UpArrow:
 
-                    if (row > 0)
+                    if (selected > 0)
                     {
-                        row--;
+                        selected--;
+
+                        // Scroll up when the selected Move leaves the window.
+                        if (selected < scrollOffset * 2)
+                        {
+                            scrollOffset--;
+                        }
                     }
 
                     break;
 
                 case ConsoleKey.DownArrow:
 
-                    if (
-                        row < 2 &&
-                        row + 1 < moves.Count
-                    )
+                    if (selected < moves.Count - 1)
                     {
-                        row++;
+                        selected++;
+
+                        // Scroll down when the selected Move leaves the window.
+                        if (selected >= scrollOffset * 2 + 6)
+                        {
+                            scrollOffset++;
+                        }
                     }
 
                     break;
 
-                // Return to the main battle menu without selecting a Move.
+                case ConsoleKey.LeftArrow:
+
+                    // Move to the left column.
+                    if (selected >= 3)
+                    {
+                        selected -= 3;
+                    }
+
+                    break;
+
+                case ConsoleKey.RightArrow:
+
+                    // Move to the right column when a Move exists there.
+                    if (selected + 3 < moves.Count)
+                    {
+                        selected += 3;
+                    }
+
+                    break;
+
                 case ConsoleKey.Escape:
                     return null;
 

@@ -95,14 +95,15 @@ public static partial class BattleView
     }
 
 
-    // Draws the Move selection menu.
+    // Draws the Move selection screen.
     private static void DrawMoveScreen(
         List<Move> moves,
         Digimon digimon,
         Digimon player,
         Digimon opponent,
         int round,
-        int selected)
+        int selected,
+        int scrollOffset)
     {
         Console.Clear();
 
@@ -115,29 +116,51 @@ public static partial class BattleView
 
         WriteRow("   CHOOSE MOVE");
 
-        // Display the available Moves in two columns.
-        for (int row = 0; row < 3; row++)
-        {
-            string left = GetMoveText(
-                moves,
-                digimon,
-                row,
-                selected
-            );
+        // Show an up arrow when there are Moves above the visible list.
+        WriteRow(
+            scrollOffset > 0
+                ? "                         ▲"
+                : ""
+        );
 
-            string right = GetMoveText(
-                moves,
-                digimon,
-                row + 3,
-                selected
-            );
+        const int visibleRows = 3;
+
+        // Display Moves in two columns.
+        for (int row = 0; row < visibleRows; row++)
+        {
+            int leftIndex = scrollOffset * 2 + row;
+            int rightIndex = leftIndex + 3;
+
+            string left =
+                GetMoveText(
+                    moves,
+                    digimon,
+                    leftIndex,
+                    selected
+                );
+
+            string right =
+                GetMoveText(
+                    moves,
+                    digimon,
+                    rightIndex,
+                    selected
+                );
 
             WriteRow(
                 $"   {left,-31}{right}"
             );
         }
 
+        // Show a down arrow when there are Moves below the visible list.
+        WriteRow(
+            scrollOffset * 2 + 6 < moves.Count
+                ? "                         ▼"
+                : ""
+        );
+
         WriteRow("   Press ESC to return");
+
         DrawBottomBorder();
     }
 

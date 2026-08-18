@@ -33,18 +33,26 @@ while (true)
         continue;
     }
 
-    // Get Moves matching the player's Attribute or Neutral Moves.
+    // Get all inheritable offensive Moves available to the player's Digimon.
     List<Move> playerMoves = moveList
         .Where(move =>
-            move.Attribute == player.Attribute ||
-            move.Attribute == "Neutral")
+            move.Inheritable &&
+            move.Type != "Support" &&
+            (
+                move.Attribute == player.Attribute ||
+                move.Attribute == "Neutral"
+            ))
         .ToList();
 
-    // Get Moves matching the opponent's Attribute or Neutral Moves.
+    // Get all inheritable offensive Moves available to the opponent's Digimon.
     List<Move> opponentMoves = moveList
         .Where(move =>
-            move.Attribute == opponent.Attribute ||
-            move.Attribute == "Neutral")
+            move.Inheritable &&
+            move.Type != "Support" &&
+            (
+                move.Attribute == opponent.Attribute ||
+                move.Attribute == "Neutral"
+            ))
         .ToList();
 
     // Reset both Digimon for a new battle.
