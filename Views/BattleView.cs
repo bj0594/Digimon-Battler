@@ -91,9 +91,14 @@ public static partial class BattleView
         string selectedAttribute)
     {
         // Only show Digimon with the selected Attribute.
+        // that have at least one valid opponent
         List<Digimon> availableDigimon = digimonList
             .Where(digimon =>
-                digimon.Attribute == selectedAttribute)
+                digimon.Attribute == selectedAttribute &&
+                digimonList.Any(opponent =>
+                    opponent.Stage == digimon.Stage &&
+                    opponent.Attribute != digimon.Attribute &&
+                    opponent != digimon))
             .OrderBy(digimon => digimon.Name)
             .ToList();
 
