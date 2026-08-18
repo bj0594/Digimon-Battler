@@ -463,6 +463,9 @@ public static partial class BattleView
         int round,
         int selectedMove)
     {
+        const int visibleRows = 3;
+        const int columnSize = 3;
+
         int selected = selectedMove;
         int scrollOffset = selected / 6;
 
@@ -484,10 +487,20 @@ public static partial class BattleView
 
                     if (selected > 0)
                     {
-                        selected--;
+                        int row = selected % columnSize;
+                        int column = selected / columnSize;
 
-                        // Scroll up when the selected Move leaves the window.
-                        if (selected < scrollOffset * 2)
+                        if (row > 0)
+                        {
+                            selected--;
+                        }
+                        else if (column > 0)
+                        {
+                            selected -= columnSize;
+                        }
+
+                        // Scroll up when necessary.
+                        if (selected < scrollOffset * 6)
                         {
                             scrollOffset--;
                         }
@@ -495,14 +508,26 @@ public static partial class BattleView
 
                     break;
 
+
                 case ConsoleKey.DownArrow:
 
                     if (selected < moves.Count - 1)
                     {
-                        selected++;
+                        int row = selected % columnSize;
+                        int column = selected / columnSize;
 
-                        // Scroll down when the selected Move leaves the window.
-                        if (selected >= scrollOffset * 2 + 6)
+                        if (row < visibleRows - 1 &&
+                            selected + 1 < moves.Count)
+                        {
+                            selected++;
+                        }
+                        else if (selected + columnSize < moves.Count)
+                        {
+                            selected += columnSize;
+                        }
+
+                        // Scroll down when necessary.
+                        if (selected >= (scrollOffset + 1) * 6)
                         {
                             scrollOffset++;
                         }
@@ -510,28 +535,30 @@ public static partial class BattleView
 
                     break;
 
+
                 case ConsoleKey.LeftArrow:
 
-                    // Move to the left column.
-                    if (selected >= 3)
+                    if (selected >= columnSize)
                     {
-                        selected -= 3;
+                        selected -= columnSize;
                     }
 
                     break;
+
 
                 case ConsoleKey.RightArrow:
 
-                    // Move to the right column when a Move exists there.
-                    if (selected + 3 < moves.Count)
+                    if (selected + columnSize < moves.Count)
                     {
-                        selected += 3;
+                        selected += columnSize;
                     }
 
                     break;
 
+
                 case ConsoleKey.Escape:
                     return null;
+
 
                 case ConsoleKey.Enter:
 
