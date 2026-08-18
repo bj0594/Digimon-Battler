@@ -16,7 +16,10 @@ public static class CsvReader
             {
                 Name = values[1],
                 Stage = values[2],
-                Attribute = values[4],
+                Attribute =
+                    values[4] == "Thunder"
+                        ? "Electric"
+                        : values[4],
 
                 MaxHp = int.Parse(values[7]),
                 MaxSp = int.Parse(values[8]),
