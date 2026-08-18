@@ -69,6 +69,7 @@ public static partial class BattleView
         WriteRow("");
 
         DrawSeparator();
+        WriteRow("");
         WriteRow("Press ESC to return.", true);
         DrawBottomBorder();
 

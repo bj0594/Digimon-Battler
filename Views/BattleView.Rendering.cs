@@ -4,6 +4,10 @@ public static partial class BattleView
     private const int InnerHeight = 20;
     private const int BarLength = 18;
 
+    // Counts rows written inside the current battle frame.
+    private static int currentRow;
+
+
     private static readonly string[] PlayerSprite =
     {
         "  ▄██▄",
@@ -44,7 +48,8 @@ public static partial class BattleView
 
         for (int i = 0; i < Actions.Length; i++)
         {
-            string marker = i == selectedAction ? ">" : " ";
+            string marker =
+                i == selectedAction ? ">" : " ";
 
             WriteRow(
                 $"   {marker} {Actions[i]}"
@@ -52,6 +57,7 @@ public static partial class BattleView
         }
 
         WriteRow("");
+
         DrawBottomBorder();
     }
 
@@ -87,6 +93,7 @@ public static partial class BattleView
 
         DrawSeparator();
         WriteRow("Press ENTER to continue.", true);
+
         DrawBottomBorder();
 
         // Wait until ENTER is pressed.
@@ -117,24 +124,24 @@ public static partial class BattleView
 
         WriteRow("   CHOOSE MOVE");
 
-        const int movesPerPage = 6;
-        const int visibleRows = 3;
-        const int columnSize = 3;
-
-        int startIndex = page * movesPerPage;
-
-        // Show an up arrow when there are Moves above the current page.
+        // Show an up arrow when there are Moves above the visible list.
         WriteRow(
             page > 0
                 ? "                         ▲"
                 : ""
         );
 
-        // Display three rows with two columns.
+        const int visibleRows = 3;
+
+        // Each page contains six Moves:
+        // three in the left column and three in the right column.
         for (int row = 0; row < visibleRows; row++)
         {
-            int leftIndex = startIndex + row;
-            int rightIndex = startIndex + row + columnSize;
+            int leftIndex =
+                page * 6 + row;
+
+            int rightIndex =
+                leftIndex + 3;
 
             string left =
                 GetMoveText(
@@ -159,7 +166,7 @@ public static partial class BattleView
 
         // Show a down arrow when there are Moves below the current page.
         WriteRow(
-            startIndex + movesPerPage < moves.Count
+            page * 6 + 6 < moves.Count
                 ? "                         ▼"
                 : ""
         );
@@ -291,6 +298,7 @@ public static partial class BattleView
             DrawSeparator();
 
             WriteRow("");
+
             DrawBottomBorder();
 
             Thread.Sleep(frameDelay);
@@ -356,16 +364,10 @@ public static partial class BattleView
         Console.WriteLine(
             $"║{text.PadRight(InnerWidth)}║"
         );
+
+        currentRow++;
     }
 
-    // Fills the remaining space so every screen has the same height.
-    private static void FillRemainingRows(int usedRows)
-    {
-        for (int i = usedRows; i < InnerHeight; i++)
-        {
-            WriteRow("");
-        }
-    }
 
     // Draws the top border of the battle box.
     private static void DrawTopBorder()
@@ -373,6 +375,9 @@ public static partial class BattleView
         Console.WriteLine(
             $"╔{new string('═', InnerWidth)}╗"
         );
+
+        // Start counting rows for this frame.
+        currentRow = 0;
     }
 
 
@@ -385,9 +390,14 @@ public static partial class BattleView
     }
 
 
-    // Draws the bottom border of the battle box.
+    // Draws the bottom border and fills unused space.
     private static void DrawBottomBorder()
     {
+        while (currentRow < InnerHeight)
+        {
+            WriteRow("");
+        }
+
         Console.WriteLine(
             $"╚{new string('═', InnerWidth)}╝"
         );

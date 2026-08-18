@@ -47,7 +47,8 @@ public static partial class BattleView
             }
 
             WriteRow("");
-            WriteRow("Use ARROW KEYS and press ENTER");
+            WriteRow("");
+            WriteRow("Use ARROW KEYS and press ENTER", true);
             DrawBottomBorder();
 
             switch (Console.ReadKey(true).Key)
@@ -151,7 +152,8 @@ public static partial class BattleView
             );
 
             WriteRow("");
-            WriteRow("Use ARROW KEYS and press ENTER");
+            WriteRow("");
+            WriteRow("Use ARROW KEYS and press ENTER", true);
             DrawBottomBorder();
 
             switch (Console.ReadKey(true).Key)
@@ -267,7 +269,8 @@ public static partial class BattleView
             );
 
             WriteRow("");
-            WriteRow("Use ARROW KEYS and press ENTER");
+            WriteRow("");
+            WriteRow("Use ARROW KEYS and press ENTER", true);
             DrawBottomBorder();
 
             switch (Console.ReadKey(true).Key)
@@ -343,6 +346,7 @@ public static partial class BattleView
                 $" SP {opponent.MaxSp,4}"
             );
 
+            WriteRow("");
             WriteRow("");
             WriteRow("Press ENTER to fight.", true);
             WriteRow("Press ESC to cancel.", true);
