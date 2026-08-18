@@ -463,14 +463,15 @@ public static partial class BattleView
         int round,
         int selectedMove)
     {
-        const int visibleRows = 3;
+        const int movesPerPage = 6;
         const int columnSize = 3;
 
         int selected = selectedMove;
-        int scrollOffset = selected / 6;
 
         while (true)
         {
+            int page = selected / movesPerPage;
+
             DrawMoveScreen(
                 moves,
                 digimon,
@@ -478,32 +479,26 @@ public static partial class BattleView
                 opponent,
                 round,
                 selected,
-                scrollOffset
+                page
             );
 
             switch (Console.ReadKey(true).Key)
             {
                 case ConsoleKey.UpArrow:
 
-                    if (selected > 0)
+                    int upPosition = selected % movesPerPage;
+                    int upRow = upPosition % columnSize;
+
+                    if (upRow > 0)
                     {
-                        int row = selected % columnSize;
-                        int column = selected / columnSize;
-
-                        if (row > 0)
-                        {
-                            selected--;
-                        }
-                        else if (column > 0)
-                        {
-                            selected -= columnSize;
-                        }
-
-                        // Scroll up when necessary.
-                        if (selected < scrollOffset * 6)
-                        {
-                            scrollOffset--;
-                        }
+                        // Move one row up in the same column.
+                        selected--;
+                    }
+                    else if (selected >= movesPerPage)
+                    {
+                        // Move from the top row to the bottom row
+                        // of the previous page, keeping the same column.
+                        selected -= movesPerPage - 2;
                     }
 
                     break;
@@ -511,25 +506,28 @@ public static partial class BattleView
 
                 case ConsoleKey.DownArrow:
 
-                    if (selected < moves.Count - 1)
+                    int downPosition = selected % movesPerPage;
+                    int downRow = downPosition % columnSize;
+
+                    if (downRow < columnSize - 1)
                     {
-                        int row = selected % columnSize;
-                        int column = selected / columnSize;
+                        // Move one row down in the same column.
+                        int next = selected + 1;
 
-                        if (row < visibleRows - 1 &&
-                            selected + 1 < moves.Count)
+                        if (next < moves.Count)
                         {
-                            selected++;
+                            selected = next;
                         }
-                        else if (selected + columnSize < moves.Count)
-                        {
-                            selected += columnSize;
-                        }
+                    }
+                    else
+                    {
+                        // Move from the bottom row to the top row
+                        // of the next page, keeping the same column.
+                        int next = selected + movesPerPage - 2;
 
-                        // Scroll down when necessary.
-                        if (selected >= (scrollOffset + 1) * 6)
+                        if (next < moves.Count)
                         {
-                            scrollOffset++;
+                            selected = next;
                         }
                     }
 
@@ -538,8 +536,11 @@ public static partial class BattleView
 
                 case ConsoleKey.LeftArrow:
 
-                    if (selected >= columnSize)
+                    int leftPosition = selected % movesPerPage;
+
+                    if (leftPosition >= columnSize)
                     {
+                        // Move to the same row in the left column.
                         selected -= columnSize;
                     }
 
@@ -548,9 +549,17 @@ public static partial class BattleView
 
                 case ConsoleKey.RightArrow:
 
-                    if (selected + columnSize < moves.Count)
+                    int rightPosition = selected % movesPerPage;
+
+                    if (rightPosition < columnSize)
                     {
-                        selected += columnSize;
+                        // Move to the same row in the right column.
+                        int next = selected + columnSize;
+
+                        if (next < moves.Count)
+                        {
+                            selected = next;
+                        }
                     }
 
                     break;

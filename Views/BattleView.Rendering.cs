@@ -103,7 +103,7 @@ public static partial class BattleView
         Digimon opponent,
         int round,
         int selected,
-        int scrollOffset)
+        int page)
     {
         Console.Clear();
 
@@ -116,20 +116,24 @@ public static partial class BattleView
 
         WriteRow("   CHOOSE MOVE");
 
-        // Show an up arrow when there are Moves above the visible list.
+        const int movesPerPage = 6;
+        const int visibleRows = 3;
+        const int columnSize = 3;
+
+        int startIndex = page * movesPerPage;
+
+        // Show an up arrow when there are Moves above the current page.
         WriteRow(
-            scrollOffset > 0
+            page > 0
                 ? "                         ▲"
                 : ""
         );
 
-        const int visibleRows = 3;
-
-        // Display Moves in two columns.
+        // Display three rows with two columns.
         for (int row = 0; row < visibleRows; row++)
         {
-            int leftIndex = scrollOffset * 2 + row;
-            int rightIndex = leftIndex + 3;
+            int leftIndex = startIndex + row;
+            int rightIndex = startIndex + row + columnSize;
 
             string left =
                 GetMoveText(
@@ -152,9 +156,9 @@ public static partial class BattleView
             );
         }
 
-        // Show a down arrow when there are Moves below the visible list.
+        // Show a down arrow when there are Moves below the current page.
         WriteRow(
-            scrollOffset * 2 + 6 < moves.Count
+            startIndex + movesPerPage < moves.Count
                 ? "                         ▼"
                 : ""
         );
