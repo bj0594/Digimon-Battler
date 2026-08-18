@@ -89,6 +89,10 @@ public static partial class BattleView
             .ToList();
 
         int selected = 0;
+        int scrollOffset = 0;
+
+        // Keep the menu at a fixed height.
+        const int visibleCount = 6;
 
         while (true)
         {
@@ -100,17 +104,39 @@ public static partial class BattleView
             WriteRow("CHOOSE YOUR DIGIMON", true);
             WriteRow("");
 
-            // Display every available Digimon.
-            for (int i = 0; i < availableDigimon.Count; i++)
+            // Show an up arrow when there are Digimon above the visible list.
+            WriteRow(
+                scrollOffset > 0
+                    ? "                         ▲"
+                    : ""
+            );
+
+            // Display only the visible Digimon.
+            for (int i = 0; i < visibleCount; i++)
             {
+                int index = scrollOffset + i;
+
+                if (index >= availableDigimon.Count)
+                {
+                    WriteRow("");
+                    continue;
+                }
+
                 string marker =
-                    i == selected ? ">" : " ";
+                    index == selected ? ">" : " ";
 
                 WriteRow(
-                    $"   {marker} {availableDigimon[i].Name,-20}" +
-                    $" {availableDigimon[i].Stage}"
+                    $"   {marker} {availableDigimon[index].Name,-20}" +
+                    $" {availableDigimon[index].Stage}"
                 );
             }
+
+            // Show a down arrow when there are Digimon below the visible list.
+            WriteRow(
+                scrollOffset + visibleCount < availableDigimon.Count
+                    ? "                         ▼"
+                    : ""
+            );
 
             WriteRow("");
             WriteRow("Use ARROW KEYS and press ENTER");
@@ -119,21 +145,31 @@ public static partial class BattleView
             switch (Console.ReadKey(true).Key)
             {
                 case ConsoleKey.UpArrow:
-                    selected--;
 
-                    if (selected < 0)
+                    if (selected > 0)
                     {
-                        selected = availableDigimon.Count - 1;
+                        selected--;
+
+                        // Scroll up when the selected Digimon leaves the window.
+                        if (selected < scrollOffset)
+                        {
+                            scrollOffset--;
+                        }
                     }
 
                     break;
 
                 case ConsoleKey.DownArrow:
-                    selected++;
 
-                    if (selected >= availableDigimon.Count)
+                    if (selected < availableDigimon.Count - 1)
                     {
-                        selected = 0;
+                        selected++;
+
+                        // Scroll down when the selected Digimon leaves the window.
+                        if (selected >= scrollOffset + visibleCount)
+                        {
+                            scrollOffset++;
+                        }
                     }
 
                     break;
@@ -150,7 +186,7 @@ public static partial class BattleView
         List<Digimon> digimonList,
         Digimon player)
     {
-        // Only allow opponents from the same Stage as the player's Digimon.
+        // Only allow opponents from the same Stage and a different Attribute.
         // The player cannot choose their own Digimon.
         List<Digimon> opponents = digimonList
             .Where(digimon =>
@@ -161,6 +197,10 @@ public static partial class BattleView
             .ToList();
 
         int selected = 0;
+        int scrollOffset = 0;
+
+        // Keep the menu at a fixed height.
+        const int visibleCount = 6;
 
         while (true)
         {
@@ -172,18 +212,40 @@ public static partial class BattleView
             WriteRow("CHOOSE YOUR OPPONENT", true);
             WriteRow("");
 
-            // Display every valid opponent.
-            for (int i = 0; i < opponents.Count; i++)
+            // Show an up arrow when there are opponents above the visible list.
+            WriteRow(
+                scrollOffset > 0
+                    ? "                         ▲"
+                    : ""
+            );
+
+            // Display only the visible opponents.
+            for (int i = 0; i < visibleCount; i++)
             {
+                int index = scrollOffset + i;
+
+                if (index >= opponents.Count)
+                {
+                    WriteRow("");
+                    continue;
+                }
+
                 string marker =
-                    i == selected ? ">" : " ";
+                    index == selected ? ">" : " ";
 
                 WriteRow(
-                    $"   {marker} {opponents[i].Name,-20}" +
-                    $" {opponents[i].Stage,-12}" +
-                    $" {opponents[i].Attribute}"
+                    $"   {marker} {opponents[index].Name,-20}" +
+                    $" {opponents[index].Stage,-12}" +
+                    $" {opponents[index].Attribute}"
                 );
             }
+
+            // Show a down arrow when there are opponents below the visible list.
+            WriteRow(
+                scrollOffset + visibleCount < opponents.Count
+                    ? "                         ▼"
+                    : ""
+            );
 
             WriteRow("");
             WriteRow("Use ARROW KEYS and press ENTER");
@@ -192,21 +254,31 @@ public static partial class BattleView
             switch (Console.ReadKey(true).Key)
             {
                 case ConsoleKey.UpArrow:
-                    selected--;
 
-                    if (selected < 0)
+                    if (selected > 0)
                     {
-                        selected = opponents.Count - 1;
+                        selected--;
+
+                        // Scroll up when the selected opponent leaves the window.
+                        if (selected < scrollOffset)
+                        {
+                            scrollOffset--;
+                        }
                     }
 
                     break;
 
                 case ConsoleKey.DownArrow:
-                    selected++;
 
-                    if (selected >= opponents.Count)
+                    if (selected < opponents.Count - 1)
                     {
-                        selected = 0;
+                        selected++;
+
+                        // Scroll down when the selected opponent leaves the window.
+                        if (selected >= scrollOffset + visibleCount)
+                        {
+                            scrollOffset++;
+                        }
                     }
 
                     break;
