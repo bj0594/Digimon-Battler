@@ -11,6 +11,7 @@ public static partial class BattleView
         "FLEE"
     };
 
+
     // Lets the player choose an Attribute.
     public static string ChooseAttribute(
         List<Digimon> digimonList)
@@ -52,6 +53,7 @@ public static partial class BattleView
             switch (Console.ReadKey(true).Key)
             {
                 case ConsoleKey.UpArrow:
+
                     selected--;
 
                     if (selected < 0)
@@ -61,7 +63,9 @@ public static partial class BattleView
 
                     break;
 
+
                 case ConsoleKey.DownArrow:
+
                     selected++;
 
                     if (selected >= attributes.Count)
@@ -71,11 +75,14 @@ public static partial class BattleView
 
                     break;
 
+
                 case ConsoleKey.Enter:
+
                     return attributes[selected];
             }
         }
     }
+
 
     // Lets the player choose their own Digimon.
     public static Digimon ChooseDigimon(
@@ -84,7 +91,8 @@ public static partial class BattleView
     {
         // Only show Digimon with the selected Attribute.
         List<Digimon> availableDigimon = digimonList
-            .Where(digimon => digimon.Attribute == selectedAttribute)
+            .Where(digimon =>
+                digimon.Attribute == selectedAttribute)
             .OrderBy(digimon => digimon.Name)
             .ToList();
 
@@ -122,12 +130,16 @@ public static partial class BattleView
                     continue;
                 }
 
+                Digimon digimon = availableDigimon[index];
+
                 string marker =
                     index == selected ? ">" : " ";
 
                 WriteRow(
-                    $"   {marker} {availableDigimon[index].Name,-20}" +
-                    $" {availableDigimon[index].Stage}"
+                    $"   {marker} {digimon.Name,-20}" +
+                    $" {digimon.Stage,-12}" +
+                    $" HP {digimon.MaxHp,5}" +
+                    $" SP {digimon.MaxSp,4}"
                 );
             }
 
@@ -159,6 +171,7 @@ public static partial class BattleView
 
                     break;
 
+
                 case ConsoleKey.DownArrow:
 
                     if (selected < availableDigimon.Count - 1)
@@ -174,7 +187,9 @@ public static partial class BattleView
 
                     break;
 
+
                 case ConsoleKey.Enter:
+
                     return availableDigimon[selected];
             }
         }
@@ -230,13 +245,17 @@ public static partial class BattleView
                     continue;
                 }
 
+                Digimon digimon = opponents[index];
+
                 string marker =
                     index == selected ? ">" : " ";
 
                 WriteRow(
-                    $"   {marker} {opponents[index].Name,-20}" +
-                    $" {opponents[index].Stage,-12}" +
-                    $" {opponents[index].Attribute}"
+                    $"   {marker} {digimon.Name,-20}" +
+                    $" {digimon.Stage,-12}" +
+                    $" {digimon.Attribute,-10}" +
+                    $" HP {digimon.MaxHp,5}" +
+                    $" SP {digimon.MaxSp,4}"
                 );
             }
 
@@ -268,6 +287,7 @@ public static partial class BattleView
 
                     break;
 
+
                 case ConsoleKey.DownArrow:
 
                     if (selected < opponents.Count - 1)
@@ -283,11 +303,14 @@ public static partial class BattleView
 
                     break;
 
+
                 case ConsoleKey.Enter:
+
                     return opponents[selected];
             }
         }
     }
+
 
     // Lets the player confirm the selected Digimon and opponent.
     public static bool ConfirmBattle(
@@ -307,13 +330,17 @@ public static partial class BattleView
             WriteRow(
                 $"   {player.Name,-20}" +
                 $" {player.Stage,-12}" +
-                $" {player.Attribute}"
+                $" {player.Attribute,-10}" +
+                $" HP {player.MaxHp,5}" +
+                $" SP {player.MaxSp,4}"
             );
 
             WriteRow(
                 $"   {opponent.Name,-20}" +
                 $" {opponent.Stage,-12}" +
-                $" {opponent.Attribute}"
+                $" {opponent.Attribute,-10}" +
+                $" HP {opponent.MaxHp,5}" +
+                $" SP {opponent.MaxSp,4}"
             );
 
             WriteRow("");
@@ -325,13 +352,17 @@ public static partial class BattleView
             switch (Console.ReadKey(true).Key)
             {
                 case ConsoleKey.Enter:
+
                     return true;
 
+
                 case ConsoleKey.Escape:
+
                     return false;
             }
         }
     }
+
 
     // Handles navigation through the main battle menu.
     public static (Move? Move, bool Fled) ChooseMove(
@@ -383,6 +414,7 @@ public static partial class BattleView
             switch (Console.ReadKey(true).Key)
             {
                 case ConsoleKey.UpArrow:
+
                     selected--;
 
                     if (selected < 0)
@@ -392,7 +424,9 @@ public static partial class BattleView
 
                     break;
 
+
                 case ConsoleKey.DownArrow:
+
                     selected++;
 
                     if (selected >= Actions.Length)
@@ -401,6 +435,7 @@ public static partial class BattleView
                     }
 
                     break;
+
 
                 case ConsoleKey.Enter:
 
@@ -486,8 +521,11 @@ public static partial class BattleView
             {
                 case ConsoleKey.UpArrow:
 
-                    int upPosition = selected % movesPerPage;
-                    int upRow = upPosition % columnSize;
+                    int upPosition =
+                        selected % movesPerPage;
+
+                    int upRow =
+                        upPosition % columnSize;
 
                     if (upRow > 0)
                     {
@@ -496,8 +534,8 @@ public static partial class BattleView
                     }
                     else if (selected >= movesPerPage)
                     {
-                        // Move from the top row to the bottom row
-                        // of the previous page, keeping the same column.
+                        // Move to the bottom row of the previous page,
+                        // keeping the same column.
                         selected -= movesPerPage - 2;
                     }
 
@@ -506,8 +544,11 @@ public static partial class BattleView
 
                 case ConsoleKey.DownArrow:
 
-                    int downPosition = selected % movesPerPage;
-                    int downRow = downPosition % columnSize;
+                    int downPosition =
+                        selected % movesPerPage;
+
+                    int downRow =
+                        downPosition % columnSize;
 
                     if (downRow < columnSize - 1)
                     {
@@ -521,9 +562,10 @@ public static partial class BattleView
                     }
                     else
                     {
-                        // Move from the bottom row to the top row
-                        // of the next page, keeping the same column.
-                        int next = selected + movesPerPage - 2;
+                        // Move to the top row of the next page,
+                        // keeping the same column.
+                        int next =
+                            selected + movesPerPage - 2;
 
                         if (next < moves.Count)
                         {
@@ -536,7 +578,8 @@ public static partial class BattleView
 
                 case ConsoleKey.LeftArrow:
 
-                    int leftPosition = selected % movesPerPage;
+                    int leftPosition =
+                        selected % movesPerPage;
 
                     if (leftPosition >= columnSize)
                     {
@@ -549,12 +592,14 @@ public static partial class BattleView
 
                 case ConsoleKey.RightArrow:
 
-                    int rightPosition = selected % movesPerPage;
+                    int rightPosition =
+                        selected % movesPerPage;
 
                     if (rightPosition < columnSize)
                     {
                         // Move to the same row in the right column.
-                        int next = selected + columnSize;
+                        int next =
+                            selected + columnSize;
 
                         if (next < moves.Count)
                         {
@@ -566,6 +611,7 @@ public static partial class BattleView
 
 
                 case ConsoleKey.Escape:
+
                     return null;
 
 

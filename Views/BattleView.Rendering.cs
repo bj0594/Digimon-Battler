@@ -1,6 +1,7 @@
 public static partial class BattleView
 {
     private const int InnerWidth = 72;
+    private const int InnerHeight = 20;
     private const int BarLength = 18;
 
     private static readonly string[] PlayerSprite =
@@ -357,6 +358,14 @@ public static partial class BattleView
         );
     }
 
+    // Fills the remaining space so every screen has the same height.
+    private static void FillRemainingRows(int usedRows)
+    {
+        for (int i = usedRows; i < InnerHeight; i++)
+        {
+            WriteRow("");
+        }
+    }
 
     // Draws the top border of the battle box.
     private static void DrawTopBorder()
